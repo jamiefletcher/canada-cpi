@@ -5,9 +5,9 @@
     "cubeStartDate": "1914-01-01",
     "cubeEndDate": "2024-12-01",
     "dimension": {
-        "1": [
-            "Geography",
-            {
+        "1": {
+            "name": "Geography",
+            "members": {
                 "2": {
                     "children": [
                         3,
@@ -169,10 +169,10 @@
                     "name": "Iqaluit, Nunavut"
                 }
             }
-        ],
-        "2": [
-            "Products and product groups",
-            {
+        },
+        "2": {
+            "name": "Products and product groups",
+            "members": {
                 "2": {
                     "children": [
                         3,
@@ -2060,6 +2060,6 @@
                     "name": "Digital economy services (201812=100)"
                 }
             }
-        ]
+        }
     }
 }
