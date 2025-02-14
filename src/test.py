@@ -13,14 +13,22 @@ def statcan_get_metadata(pid: int):
         for field in ["productId", "cansimId", "cubeTitleEn", "cubeStartDate", "cubeEndDate"]:
             metadata[field] = r_json[0]["object"][field]
 
-        metadata["dimension"] = []
+        metadata["dimension"] = {}
         for d in r_json[0]["object"]["dimension"]:
-            dim = {d_field: d[d_field] for d_field in ["dimensionNameEn", "dimensionPositionId"]}
-            dim["member"] = []
+            dim_id = int(d["dimensionPositionId"])
+            dim_name = d["dimensionNameEn"]
+            members = {}
             for m in d["member"]:
-                mem = {m_field: m[m_field] for m_field in ["memberId", "parentMemberId", "memberNameEn", "geoLevel", "vintage"]}
-                dim["member"].append(mem)
-            metadata["dimension"].append(dim)
+                m_id = int(m["memberId"])
+                parent_id = int(m["parentMemberId"]) if m["parentMemberId"] else None
+                members[m_id] = {
+                    "children" : [],
+                    "name" : m["memberNameEn"]
+                }
+                if parent_id:
+                    members[parent_id]["children"].append(m_id)
+
+            metadata["dimension"][dim_id] = [dim_name, members]
             
     return metadata
 
@@ -38,6 +46,8 @@ def main():
     cpi_pid = 18100004
     
     metadata = statcan_get_metadata(pid=cpi_pid)
+
+    print(metadata)
     with open(f"data/{cpi_pid}_metadata.json", "w") as f:
         json.dump(metadata, f, indent=4, ensure_ascii=False)
     
