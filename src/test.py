@@ -1,19 +1,34 @@
 import requests
 import json
 
-def statcan_get_metadata(pid: int, save_file = ""):
+
+def statcan_get_metadata(pid: int):
     url = "https://www150.statcan.gc.ca/t1/wds/rest/getCubeMetadata"
     payload = [{"productId": pid}]
+    metadata = statcan_get(url, payload, _process_metadata)
+    return metadata
+
+
+def statcan_get_data(pid: int, coordinate: str, periods: int):
+    url = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods"
+    payload = [{"productId": pid, "coordinate": coordinate, "latestN": periods}]
+    data = statcan_get(url, payload, _process_default)
+    return data
+
+
+def statcan_get(url: str, payload, processor):
     headers = {"Content-Type": "application/json"}
     r = requests.post(url, json=payload, headers=headers)
     r.raise_for_status()
     r_json = r.json()    
-    if r_json[0]["status"] == "SUCCESS":
-        metadata = _process_metadata(r_json)
-    if save_file:
-        with open(save_file, "w") as f:
-            json.dump(metadata, f, indent=4, ensure_ascii=False)
-    return metadata
+    if r_json[0]["status"] != "SUCCESS":
+        raise RuntimeError("API request failed", r_json)
+    return processor(r_json)
+
+
+def _process_default(r_json: dict):
+    return r_json
+
 
 def _process_metadata(r_json: dict):
     metadata = {}
@@ -41,32 +56,19 @@ def _process_metadata(r_json: dict):
         }
     return metadata
 
-def statcan_get_data(pid: int, coordinate: str, periods: int):
-    url = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods"
-    payload = [{"productId": pid, "coordinate": coordinate, "latestN": periods}]
-    headers = {"Content-Type": "application/json"}
-    r = requests.post(url, json=payload, headers=headers)
-    r.raise_for_status()
-    r_json = r.json()
-    print(r_json)
-
 
 def main():
     cpi_pid = 18100004
+    metadata_file = f"data/{cpi_pid}_metadata.json"
+    data_file = f"data/{cpi_pid}_data.json"
     
-    metadata = statcan_get_metadata(
-        pid=cpi_pid, save_file=f"data/{cpi_pid}_metadata.json"
-    )
+    metadata = statcan_get_metadata(cpi_pid)
+    with open(metadata_file, "w") as f:
+        json.dump(metadata, f, indent=4, ensure_ascii=False)
 
-    print(metadata)
-
-    
-    # for d in metadata["dimension"]:
-    #     print(d["dimensionNameEn"])
-    #     mems = [(m["memberId"], m["parentMemberId"], m["memberNameEn"]) for m in d["member"]]
-    #     print(mems)
-
-    # statcan_get_data(pid=18100004, coordinate="2.2.0.0.0.0.0.0.0.0", periods=12)
+    data = statcan_get_data(pid=18100004, coordinate="2.2.0.0.0.0.0.0.0.0", periods=12)
+    with open(data_file, "w") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
 
 
 if __name__ == "__main__":
