@@ -12,7 +12,7 @@ def statcan_get_metadata(pid: int):
 def statcan_get_data(pid: int, coordinate: str, periods: int):
     url = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods"
     payload = [{"productId": pid, "coordinate": coordinate, "latestN": periods}]
-    data = statcan_get(url, payload, _process_default)
+    data = statcan_get(url, payload, _process_data)
     return data
 
 
@@ -28,6 +28,15 @@ def statcan_get(url: str, payload, processor):
 
 def _process_default(r_json: dict):
     return r_json
+
+
+def _process_data(r_json: dict):
+    data = {"values": []}
+    for field in ["productId", "coordinate", "vectorId"]:
+        data[field] = r_json[0]["object"][field]
+    for dp in r_json[0]["object"]["vectorDataPoint"]:
+        data["values"].append((dp["refPer"], dp["value"]))
+    return data
 
 
 def _process_metadata(r_json: dict):
@@ -66,7 +75,7 @@ def main():
     with open(metadata_file, "w") as f:
         json.dump(metadata, f, indent=4, ensure_ascii=False)
 
-    data = statcan_get_data(pid=18100004, coordinate="2.2.0.0.0.0.0.0.0.0", periods=12)
+    data = statcan_get_data(pid=cpi_pid, coordinate="2.2.0.0.0.0.0.0.0.0", periods=12)
     with open(data_file, "w") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
