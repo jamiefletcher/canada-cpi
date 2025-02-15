@@ -72,12 +72,31 @@ def main():
     data_file = f"data/{cpi_pid}_data.json"
     
     metadata = statcan_get_metadata(cpi_pid)
-    with open(metadata_file, "w") as f:
-        json.dump(metadata, f, indent=4, ensure_ascii=False)
+    # with open(metadata_file, "w") as f:
+    #     json.dump(metadata, f, indent=4, ensure_ascii=False)
 
-    data = statcan_get_data(pid=cpi_pid, coordinate="2.2.0.0.0.0.0.0.0.0", periods=12)
-    with open(data_file, "w") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+    table_name = metadata["cubeTitleEn"]
+    geography = metadata["dimension"][1]["members"]
+    geo_map = {geo_id: geo["name"] for geo_id, geo in geography.items()}
+    print(geo_map)
+
+    for geo_id, geo in geography.items():
+        coord = f"{geo_id}.2.0.0.0.0.0.0.0.0"
+        data = statcan_get_data(pid=cpi_pid, coordinate=coord, periods=12)
+        data["tableName"] = table_name
+        data["geography"] = geo["name"]
+        with open(f"data/{cpi_pid}_geo-{geo_id}_data.json", "w") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+
+    products = metadata["dimension"][2]["members"]
+    cpi_root = min(products.keys())
+    prod_map = {prod_id: products[prod_id]["name"] for prod_id in products[cpi_root]["children"]}
+    # print(prod_map)
+    
+
+    # data = statcan_get_data(pid=cpi_pid, coordinate="2.2.0.0.0.0.0.0.0.0", periods=12)
+    # with open(data_file, "w") as f:
+    #     json.dump(data, f, indent=4, ensure_ascii=False)
 
 
 if __name__ == "__main__":
