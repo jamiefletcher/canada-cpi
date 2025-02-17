@@ -33,7 +33,7 @@
         ],
         "tableName": "Consumer Price Index, monthly, not seasonally adjusted",
         "geography": "Ottawa-Gatineau, Ontario part, Ontario/Quebec",
-        "product": "All-items"
+        "category": "All-items"
     },
     {
         "productId": 18100004,
@@ -69,6 +69,6 @@
         ],
         "tableName": "Consumer Price Index, monthly, not seasonally adjusted",
         "geography": "Ottawa-Gatineau, Ontario part, Ontario/Quebec",
-        "product": "Shelter"
+        "category": "Shelter"
     }
 ]

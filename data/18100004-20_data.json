@@ -33,7 +33,7 @@
         ],
         "tableName": "Consumer Price Index, monthly, not seasonally adjusted",
         "geography": "Saskatchewan",
-        "product": "All-items"
+        "category": "All-items"
     },
     {
         "productId": 18100004,
@@ -69,7 +69,7 @@
         ],
         "tableName": "Consumer Price Index, monthly, not seasonally adjusted",
         "geography": "Saskatchewan",
-        "product": "Food"
+        "category": "Food"
     },
     {
         "productId": 18100004,
@@ -105,7 +105,7 @@
         ],
         "tableName": "Consumer Price Index, monthly, not seasonally adjusted",
         "geography": "Saskatchewan",
-        "product": "Shelter"
+        "category": "Shelter"
     },
     {
         "productId": 18100004,
@@ -141,7 +141,7 @@
         ],
         "tableName": "Consumer Price Index, monthly, not seasonally adjusted",
         "geography": "Saskatchewan",
-        "product": "Household operations, furnishings and equipment"
+        "category": "Household operations, furnishings and equipment"
     },
     {
         "productId": 18100004,
@@ -177,7 +177,7 @@
         ],
         "tableName": "Consumer Price Index, monthly, not seasonally adjusted",
         "geography": "Saskatchewan",
-        "product": "Clothing and footwear"
+        "category": "Clothing and footwear"
     },
     {
         "productId": 18100004,
@@ -213,7 +213,7 @@
         ],
         "tableName": "Consumer Price Index, monthly, not seasonally adjusted",
         "geography": "Saskatchewan",
-        "product": "Transportation"
+        "category": "Transportation"
     },
     {
         "productId": 18100004,
@@ -249,7 +249,7 @@
         ],
         "tableName": "Consumer Price Index, monthly, not seasonally adjusted",
         "geography": "Saskatchewan",
-        "product": "Health and personal care"
+        "category": "Health and personal care"
     },
     {
         "productId": 18100004,
@@ -285,7 +285,7 @@
         ],
         "tableName": "Consumer Price Index, monthly, not seasonally adjusted",
         "geography": "Saskatchewan",
-        "product": "Recreation, education and reading"
+        "category": "Recreation, education and reading"
     },
     {
         "productId": 18100004,
@@ -321,6 +321,6 @@
         ],
         "tableName": "Consumer Price Index, monthly, not seasonally adjusted",
         "geography": "Saskatchewan",
-        "product": "Alcoholic beverages, tobacco products and recreational cannabis"
+        "category": "Alcoholic beverages, tobacco products and recreational cannabis"
     }
 ]

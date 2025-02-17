@@ -33,6 +33,6 @@
         ],
         "tableName": "Consumer Price Index, monthly, not seasonally adjusted",
         "geography": "Iqaluit, Nunavut",
-        "product": "All-items"
+        "category": "All-items"
     }
 ]

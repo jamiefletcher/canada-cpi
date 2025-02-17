@@ -37,33 +37,35 @@ def _process_data(r_json: dict):
 
 
 def _process_metadata(r_json: dict):
-    metadata = {}
-    for field in [
-        "productId",
-        "cansimId",
-        "cubeTitleEn",
-        "cubeStartDate",
-        "cubeEndDate",
-    ]:
-        metadata[field] = r_json[field]
+    return {
+        "productId": r_json["productId"],
+        "cansimId": r_json["cansimId"],
+        "cubeTitleEn": r_json["cubeTitleEn"],
+        "cubeStartDate": r_json["cubeStartDate"],
+        "cubeEndDate": r_json["cubeEndDate"],
+        "dimension": {
+            int(dim["dimensionPositionId"]): {
+                "name": dim["dimensionNameEn"],
+                "members": _members_map(dim["member"]),
+            }
+            for dim in r_json["dimension"]
+        },
+    }
 
-    metadata["dimension"] = {}
-    for d in r_json["dimension"]:
-        dim_id = int(d["dimensionPositionId"])
-        dim_name = d["dimensionNameEn"]
-        members = {}
-        for m in d["member"]:
-            m_id = int(m["memberId"])
-            if m_id not in members:
-                members[m_id] = {"children": []}
-            members[m_id].update({"name": m["memberNameEn"]})
-            parent_id = int(m["parentMemberId"]) if m["parentMemberId"] else None
-            if parent_id:
-                if parent_id not in members:
-                    members[parent_id] = {"children": []}
-                members[parent_id]["children"].append(m_id)
-        metadata["dimension"][dim_id] = {"name": dim_name, "members": members}
-    return metadata
+
+def _members_map(json_mems):
+    members = {}
+    for member in json_mems:
+        m_id = int(member["memberId"])
+        parent_id = int(member["parentMemberId"]) if member["parentMemberId"] else None
+        if m_id not in members:
+            members[m_id] = {"children": []}
+        members[m_id]["name"] = member["memberNameEn"]
+        if parent_id:
+            if parent_id not in members:
+                members[parent_id] = {"children": []}
+            members[parent_id]["children"].append(m_id)
+    return members
 
 
 def main():
@@ -92,7 +94,7 @@ def main():
             else:
                 data["tableName"] = table_name
                 data["geography"] = geo["name"]
-                data["product"] = prod["name"]
+                data["category"] = prod["name"]
                 dd.append(data)
         with open(f"data/{cpi_table}-{geo_id}_data.json", "w") as f:
             json.dump(dd, f, indent=4, ensure_ascii=False)
