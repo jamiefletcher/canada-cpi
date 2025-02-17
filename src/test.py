@@ -63,36 +63,37 @@ def _process_metadata(r_json: dict):
 
 
 def main():
-    cpi_pid = 18100004
-    metadata_file = f"data/{cpi_pid}_metadata.json"
-    data_file = f"data/{cpi_pid}_data.json"
+    cpi_table = 18100004
     
-    metadata = statcan_get_metadata(cpi_pid)
-    # with open(metadata_file, "w") as f:
-    #     json.dump(metadata, f, indent=4, ensure_ascii=False)
+    metadata = statcan_get_metadata(cpi_table)
+    metadata_file = f"data/{cpi_table}_metadata.json"
+    with open(metadata_file, "w") as f:
+        json.dump(metadata, f, indent=4, ensure_ascii=False)
 
     table_name = metadata["cubeTitleEn"]
     geography = metadata["dimension"][1]["members"]
     geo_map = {geo_id: geo["name"] for geo_id, geo in geography.items()}
-    print(geo_map)
-
-    for geo_id, geo in geography.items():
-        coord = f"{geo_id}.2.0.0.0.0.0.0.0.0"
-        data = statcan_get_data(pid=cpi_pid, coordinate=coord, periods=12)
-        data["tableName"] = table_name
-        data["geography"] = geo["name"]
-        with open(f"data/{cpi_pid}_geo-{geo_id}_data.json", "w") as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
 
     products = metadata["dimension"][2]["members"]
     cpi_root = min(products.keys())
-    prod_map = {prod_id: products[prod_id]["name"] for prod_id in products[cpi_root]["children"]}
-    # print(prod_map)
-    
+    prod_map = {cpi_root: products[cpi_root]["name"]}
+    prod_map.update({prod_id: products[prod_id]["name"] for prod_id in products[cpi_root]["children"]})
 
-    # data = statcan_get_data(pid=cpi_pid, coordinate="2.2.0.0.0.0.0.0.0.0", periods=12)
-    # with open(data_file, "w") as f:
-    #     json.dump(data, f, indent=4, ensure_ascii=False)
+    for geo_id, geo in geo_map.items():
+        dd = []
+        for prod_id, prod in prod_map.items():
+            coord = f"{geo_id}.{prod_id}.0.0.0.0.0.0.0.0"
+            try:
+                data = statcan_get_data(pid=cpi_table, coordinate=coord, periods=12)
+            except RuntimeError as err:
+                print(coord, err)
+            else:
+                data["tableName"] = table_name
+                data["geography"] = geo
+                data["product"] = prod
+                dd.append(data)
+        with open(f"data/{cpi_table}-{geo_id}_data.json", "w") as f:
+            json.dump(dd, f, indent=4, ensure_ascii=False)
 
 
 if __name__ == "__main__":
