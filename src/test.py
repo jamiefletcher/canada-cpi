@@ -5,36 +5,32 @@ import json
 def statcan_get_metadata(pid: int):
     url = "https://www150.statcan.gc.ca/t1/wds/rest/getCubeMetadata"
     payload = [{"productId": pid}]
-    metadata = statcan_get(url, payload, _process_metadata)
-    return metadata
+    response_json = statcan_get(url, payload)
+    return _process_metadata(response_json)
 
 
 def statcan_get_data(pid: int, coordinate: str, periods: int):
     url = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods"
     payload = [{"productId": pid, "coordinate": coordinate, "latestN": periods}]
-    data = statcan_get(url, payload, _process_data)
-    return data
+    response_json = statcan_get(url, payload)
+    return _process_data(response_json)
 
 
-def statcan_get(url: str, payload, processor):
+def statcan_get(url: str, payload):
     headers = {"Content-Type": "application/json"}
     r = requests.post(url, json=payload, headers=headers)
     r.raise_for_status()
     r_json = r.json()    
     if r_json[0]["status"] != "SUCCESS":
         raise RuntimeError("API request failed", r_json)
-    return processor(r_json)
-
-
-def _process_default(r_json: dict):
-    return r_json
+    return r_json[0]["object"]
 
 
 def _process_data(r_json: dict):
     data = {"values": []}
     for field in ["productId", "coordinate", "vectorId"]:
-        data[field] = r_json[0]["object"][field]
-    for dp in r_json[0]["object"]["vectorDataPoint"]:
+        data[field] = r_json[field]
+    for dp in r_json["vectorDataPoint"]:
         data["values"].append((dp["refPer"], dp["value"]))
     return data
 
@@ -42,10 +38,10 @@ def _process_data(r_json: dict):
 def _process_metadata(r_json: dict):
     metadata = {}
     for field in ["productId", "cansimId", "cubeTitleEn", "cubeStartDate", "cubeEndDate"]:
-        metadata[field] = r_json[0]["object"][field]
+        metadata[field] = r_json[field]
 
     metadata["dimension"] = {}
-    for d in r_json[0]["object"]["dimension"]:
+    for d in r_json["dimension"]:
         dim_id = int(d["dimensionPositionId"])
         dim_name = d["dimensionNameEn"]
         members = {}
