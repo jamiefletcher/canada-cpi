@@ -1,5 +1,6 @@
 import requests
 import json
+from collections import defaultdict
 
 
 def statcan_get_metadata(pid: int):
@@ -55,16 +56,12 @@ def _process_metadata(r_json: dict):
 
 
 def _members_map(json_mems):
-    members = {}
+    members = defaultdict(lambda: {"children": []})
     for member in json_mems:
         m_id = int(member["memberId"])
         parent_id = int(member["parentMemberId"]) if member["parentMemberId"] else None
-        if m_id not in members:
-            members[m_id] = {"children": []}
         members[m_id]["name"] = member["memberNameEn"]
         if parent_id:
-            if parent_id not in members:
-                members[parent_id] = {"children": []}
             members[parent_id]["children"].append(m_id)
     return members
 
