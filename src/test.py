@@ -28,7 +28,7 @@ def statcan_post(url: str, payload):
 
 def _process_data(r_json: dict):
     return {
-        "productId": r_json["productId"],
+        # "productId": r_json["productId"],
         "coordinate": r_json["coordinate"],
         "vectorId": r_json["vectorId"],
         "values": [dp["value"] for dp in r_json["vectorDataPoint"]],
@@ -43,13 +43,14 @@ def _process_metadata(r_json: dict):
         "cubeTitleEn": r_json["cubeTitleEn"],
         "cubeStartDate": r_json["cubeStartDate"],
         "cubeEndDate": r_json["cubeEndDate"],
-        "dimension": {
-            int(dim["dimensionPositionId"]): {
+        "dimension": [
+            {
+                "position": int(dim["dimensionPositionId"]),
                 "name": dim["dimensionNameEn"],
                 "members": _members_map(dim["member"]),
             }
             for dim in r_json["dimension"]
-        },
+        ],
     }
 
 
@@ -69,35 +70,37 @@ def _members_map(json_mems):
 
 
 def main():
-    cpi_table = 18100004
+    cpi_table_id = 18100004
 
-    metadata = statcan_get_metadata(cpi_table)
-    metadata_file = f"data/{cpi_table}_metadata.json"
+    metadata = statcan_get_metadata(cpi_table_id)
+    metadata_file = f"data/{cpi_table_id}_metadata.json"
     with open(metadata_file, "w") as f:
         json.dump(metadata, f, indent=4, ensure_ascii=False)
 
-    table_name = metadata["cubeTitleEn"]
-    geography = metadata["dimension"][1]["members"]
-    products = metadata["dimension"][2]["members"]
-    prod_root = min(products.keys())
-    prod_ids = [prod_root] + products[prod_root]["children"]
+    geography = metadata["dimension"][0]["members"]
+    category = metadata["dimension"][1]["members"]
+    cat_root = min(category.keys())
+    cat_ids = [cat_root] + category[cat_root]["children"]
 
     for geo_id, geo in geography.items():
-        dd = []
-        for prod_id in prod_ids:
-            prod = products[prod_id]
-            coord = f"{geo_id}.{prod_id}.0.0.0.0.0.0.0.0"
+        dataset = {
+            "tableName": metadata["cubeTitleEn"],
+            "tableId": cpi_table_id,
+            "geography": geo["name"],
+            "data": [],
+        }
+        for c_id in cat_ids:
+            cat = category[c_id]
+            coord = f"{geo_id}.{c_id}.0.0.0.0.0.0.0.0"
             try:
-                data = statcan_get_data(pid=cpi_table, coordinate=coord, periods=12)
+                data = statcan_get_data(pid=cpi_table_id, coordinate=coord, periods=12)
             except RuntimeError as err:
                 print(coord, err)
             else:
-                data["tableName"] = table_name
-                data["geography"] = geo["name"]
-                data["category"] = prod["name"]
-                dd.append(data)
-        with open(f"data/{cpi_table}-{geo_id}_data.json", "w") as f:
-            json.dump(dd, f, indent=4, ensure_ascii=False)
+                data["category"] = cat["name"]
+                dataset["data"].append(data)
+        with open(f"data/{cpi_table_id}-{geo_id}_data.json", "w") as f:
+            json.dump(dataset, f, indent=4, ensure_ascii=False)
 
 
 if __name__ == "__main__":

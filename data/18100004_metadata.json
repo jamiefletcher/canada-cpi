@@ -4,8 +4,9 @@
     "cubeTitleEn": "Consumer Price Index, monthly, not seasonally adjusted",
     "cubeStartDate": "1914-01-01",
     "cubeEndDate": "2024-12-01",
-    "dimension": {
-        "1": {
+    "dimension": [
+        {
+            "position": 1,
             "name": "Geography",
             "members": {
                 "2": {
@@ -170,7 +171,8 @@
                 }
             }
         },
-        "2": {
+        {
+            "position": 2,
             "name": "Products and product groups",
             "members": {
                 "2": {
@@ -2061,5 +2063,5 @@
                 }
             }
         }
-    }
+    ]
 }
