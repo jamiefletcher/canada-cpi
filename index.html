@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+	<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+	<!--<link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css' />-->
+	<!--<script src='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js'></script>-->
+	<style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        body { color: hsl(0, 0%, 30%); background-color: hsl(30, 40%, 95%); height: 100vh; width: 100vw; }
+        .container { display: flex; flex-direction: column; gap: 0; margin: 0 auto; max-width: 768px; }
+        .table-container { display: flex; flex-direction: column; width: 100%; padding: 10px 20px;}
+		.table-row { display: flex; }
+		.table-cell { padding: 3px; }
+		.table-col-2-3 { flex: 2; text-align: left; }
+		.table-col-1-3 { flex: 1; text-align: right; }
+		.full-width { position: relative; justify-content: center; align-items: center; padding: 0 20px; }
+        .half-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px;}
+        .half-width .column { flex: 0 0 50%; margin: 0 auto;}
+        .quarter-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px;}
+        .quarter-width .column { flex: 0 0 25%; margin: 0 auto; }
+        .third-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px;}
+        .third-width .column { flex: 0 0 33%; margin: 0 auto; padding: 0 5px; }
+        .profilepic{ height:75px; width:75px; background-color: hsl(0, 0%, 20%); border-radius: 50%; border: 5px solid hsl(0, 0%, 20%);}
+        #github { position: absolute; top: 10px; right: 20px; }
+        #status { margin: 0 auto; }
+        #map { background: url('img/bg1.png') no-repeat center center; background-size: contain; background-color: hsl(0, 0%, 100%); height: 190px; width: 190px; margin: 20px auto -30px auto; overflow: visible; border-radius: 50%; border: 5px solid hsl(0, 0%, 20%); pointer-events: none; }
+        .maplibregl-ctrl-bottom-right { display: none; } 
+        @media (max-width: 768px) {
+            .half-width .column { flex: 0 0 50%; }
+        }
+        .hr-medium {border:none; height:3px; background-color: hsl( 0, 0%, 30%); margin: 5px 0 5px 0; }
+        .hr-thin {border:none; height:1px; background-color: hsl( 0, 0%, 30%); margin: 5px 0 5px 0; }
+		.hr-thick {border:none; height:5px; background-color: hsl( 0, 0%, 30%); margin: 5px 0 5px 0; }
+        h1 { font-size: 69px; font-weight: 600; letter-spacing: -3px; line-height: 0.8;}
+        h2 { font-size: 26px; font-weight: 600; letter-spacing: -2px; line-height: 1; }
+        h3 { font-size: 13px; font-weight: 600; letter-spacing: 0px; line-height: 1; text-transform: uppercase; }
+        h4 { font-size: 9px; font-weight: 700; letter-spacing: 0; line-height: 1; text-transform: uppercase; }
+        h5 { font-size: 10px; font-weight: 600; letter-spacing: 0; line-height: 1; background-color: hsl( 0, 0%, 20%); color: hsl( 0, 0%, 90%); padding: 5px; }
+        p { font-size: 12px; font-weight: 500; letter-spacing: 0; }
+        a { text-decoration: none; }
+        span { font-size: 13px; font-weight: 400; letter-spacing: -1px; margin: 0 0 0 2px; }
+    </style>
+</head>
+
+<body>
+
+	<div class="container">
+		<!--<div id="map"></div>-->
+		<div id="status"></div>
+		<div id="jsonContainer"></div>
+	</div>
+
+	<script>
+		async function fetchJsonData(tableId) {
+			const jsonData = {};
+			const statusDiv = document.getElementById("status");
+			const start = 2;
+			const end = 2;
+			//const end = 31;
+
+			for (let i = start; i <= end; i++) {
+				const fileUrl = `https://raw.githubusercontent.com/jamiefletcher/canada-cpi/refs/heads/main/data/${tableId}-${i}_data.json`;
+
+				try {
+					//statusDiv.innerHTML = `<div class="full-width"><p>Fetching ${fileUrl}...</p></div>`;
+					
+					const response = await fetch(fileUrl);
+					if (!response.ok) throw new Error(`Failed to fetch ${fileUrl}`);
+
+					jsonData[fileUrl] = await response.json();
+					console.log(`Fetched: ${fileUrl}`);
+				} catch (error) {
+					console.error(error.message);
+				}
+			}
+
+			//statusDiv.innerText = "Fetching complete!";
+			console.log("All data:", jsonData);
+			return jsonData;
+		}
+
+		function displayJsonData(jsonData) {
+			const container = document.getElementById('jsonContainer');
+			container.innerHTML = "";
+
+			Object.entries(jsonData).forEach(([fileUrl, data]) => {
+				const jsonItem = document.createElement('div');
+				jsonItem.classList.add('table-container');
+
+				jsonItem.innerHTML = `
+					<hr class="hr-medium">
+					<div class="table-cell"><p>${data.geography}</p></div>
+					<hr class="hr-thin">
+						${data.data.map(item => {
+						const categoryName = item.category === 'All-items' ? 'Total' : item.category;
+						
+						return `
+							<div class="table-row">
+								<div class="table-cell table-col-2-3"><p>${categoryName}</p></div>
+								<div class="table-cell table-col-1-3"><p>${item.values[12]}</p></div>
+							</div>
+						`;
+						}).join("")}
+				`;
+
+				container.appendChild(jsonItem);
+			});
+		}
+
+		fetchJsonData('18100004').then(displayJsonData);
+
+	</script>
+</body>
+
+</html>
