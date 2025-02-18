@@ -3,7 +3,7 @@
     "cansimId": "326-0020",
     "cubeTitleEn": "Consumer Price Index, monthly, not seasonally adjusted",
     "cubeStartDate": "1914-01-01",
-    "cubeEndDate": "2024-12-01",
+    "cubeEndDate": "2025-01-01",
     "dimension": [
         {
             "position": 1,

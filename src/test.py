@@ -90,7 +90,7 @@ def main():
             cat = category[c_id]
             coord = f"{geo_id}.{c_id}.0.0.0.0.0.0.0.0"
             try:
-                data = statcan_get_data(pid=cpi_table_id, coordinate=coord, periods=12)
+                data = statcan_get_data(pid=cpi_table_id, coordinate=coord, periods=13)
             except RuntimeError as err:
                 print(coord, err)
             else:
