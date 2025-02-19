@@ -13,11 +13,12 @@
         body { color: hsl(0, 0%, 30%); background-color: hsl(0, 0%, 95%); height: 100vh; width: 100vw; }
         .container { display: flex; flex-direction: column; gap: 0; margin: 0 auto; max-width: 400px; }
         .table-container { display: flex; flex-direction: column; width: 100%; padding: 10px 20px;}
+		.table-header .table-cell { border-bottom: 3px solid hsl(0, 0%, 50%); }
 		.table-row { display: flex; }
 		.table-cell { padding: 10px 0 3px 0; display: flex; flex-direction: column; justify-content: flex-end; }
-		.table-col-3-3 { flex: 1 1 100%; text-align: left; border-bottom: 1px solid hsl(0,0%,50%); border-top: 3px solid hsl(0,0%,30%); }
-		.table-col-2-3 { flex: 2; text-align: left; border-bottom: 1px dotted hsl(0,0%,50%); }
-		.table-col-1-3 { flex: 1; text-align: right; border-bottom: 1px dotted hsl(0,0%,50%); }
+		.table-col-4-8 { flex: 1 1 50%; text-align: left; border-bottom: 1px solid hsl(0, 0%, 80%);}
+		.table-col-2-8 { flex: 2; text-align: right; border-bottom: 1px solid hsl(0, 0%, 80%); }
+		.table-col-1-8 { flex: 1; text-align: right; border-bottom: 1px solid hsl(0, 0%, 80%); }
 		.full-width { position: relative; justify-content: center; align-items: center; padding: 0 20px; }
         .half-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px;}
         .half-width .column { flex: 0 0 50%; margin: 0 auto;}
@@ -26,7 +27,7 @@
         .third-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px;}
         .third-width .column { flex: 0 0 33%; margin: 0 auto; padding: 0 5px; }
     	.profilepic{ height:75px; width:75px; background-color: hsl(0, 0%, 20%); border-radius: 50%; border: 5px solid hsl(0, 0%, 20%);}
-        .highlight-bold p { font-weight: 900; }
+        .highlight-bold p { font-weight: 500; }
 		#github { position: absolute; top: 10px; right: 20px; }
         #status { margin: 0 auto; }
         #map { background: url('img/bg1.png') no-repeat center center; background-size: contain; background-color: hsl(0, 0%, 100%); height: 190px; width: 190px; margin: 20px auto -30px auto; overflow: visible; border-radius: 50%; border: 5px solid hsl(0, 0%, 20%); pointer-events: none; }
@@ -40,8 +41,7 @@
         h1 { font-size: 69px; font-weight: 600; letter-spacing: -3px; line-height: 0.8;}
         h2 { font-size: 26px; font-weight: 600; letter-spacing: -2px; line-height: 1; }
         h3 { font-size: 14px; font-weight: 600; letter-spacing: 0px; line-height: 1; text-transform: uppercase; }
-        h4 { font-size: 18px; font-weight: 500; letter-spacing: 0; line-height: 1; }
-        h5 { font-size: 10px; font-weight: 600; letter-spacing: 0; line-height: 1; background-color: hsl( 0, 0%, 20%); color: hsl( 0, 0%, 90%); padding: 5px; }
+        h4 { font-size: 9px; font-weight: 500; letter-spacing: 0; line-height: 1; text-transform: uppercase; }
         p { font-size: 12px; font-weight: 500; letter-spacing: 0; }
         a { text-decoration: none; }
         span { font-size: 13px; font-weight: 400; letter-spacing: -1px; margin: 0 0 0 2px; }
@@ -94,19 +94,28 @@
 				jsonItem.classList.add('table-container');
 
 				jsonItem.innerHTML = `
-					<div class="table-row">
-						<div class="table-cell table-col-3-3"><p>${data.geography}</p></div>
+					<div class="table-row table-header">
+						<div class="table-cell table-col-4-8"><p>${data.geography}</p></div>
+						<div class="table-cell table-col-1-8"><p>CPI</p></div>
+						<div class="table-cell table-col-1-8"><p>M%</p></div>
+						<div class="table-cell table-col-1-8"><p>Y%</p></div>
 					</div>	
 					${data.data.map(item => {
 					const categoryName = item.category === 'All-items' ? 'Total' : item.category;
-					
+					const yoy = (item.values[12] - item.values[0]).toFixed(1);
+					const yoySigned = yoy > 0 ? `+${yoy}` : `${yoy}`;
+					const mom = (item.values[12] - item.values[11]).toFixed(1);
+					const momSigned = mom > 0 ? `+${mom}` : `${mom}`;
+
 					let categoryClass = "";
 					if (categoryName === "Total") categoryClass = "highlight-bold";
 
 					return `
 						<div class="table-row ${categoryClass}">
-							<div class="table-cell table-col-2-3"><p>${categoryName}</p></div>
-							<div class="table-cell table-col-1-3"><p>${item.values[12]}</p></div>
+							<div class="table-cell table-col-4-8"><p>${categoryName}</p></div>
+							<div class="table-cell table-col-1-8"><p>${item.values[12]}</p></div>
+							<div class="table-cell table-col-1-8"><p>${momSigned}</p></div>
+							<div class="table-cell table-col-1-8"><p>${yoySigned}</p></div>
 						</div>
 					`;
 					}).join("")}
