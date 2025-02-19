@@ -15,6 +15,7 @@
         .table-container { display: flex; flex-direction: column; width: 100%; padding: 10px 20px;}
 		.table-row { display: flex; }
 		.table-cell { padding: 3px; }
+		.table-col-3-3 { flex: 1 1 100%; text-align: left; border-bottom: 1px solid hsl(0,0%,50%); border-top: 3px solid hsl(0,0%,30%); }
 		.table-col-2-3 { flex: 2; text-align: left; }
 		.table-col-1-3 { flex: 1; text-align: right; }
 		.full-width { position: relative; justify-content: center; align-items: center; padding: 0 20px; }
@@ -93,23 +94,22 @@
 				jsonItem.classList.add('table-container');
 
 				jsonItem.innerHTML = `
-					<hr class="hr-medium">
-					<p>${data.geography}</p>
-					<hr class="hr-thin">
-					<div class="table-cell"></div>
-						${data.data.map(item => {
-						const categoryName = item.category === 'All-items' ? 'Total' : item.category;
-						
-						let categoryClass = "";
-		                if (categoryName === "Total") categoryClass = "highlight-bold";
+					<div class="table-row">
+						<div class="table-cell table-col-3-3"><p>${data.geography}</p></div>
+					</div>	
+					${data.data.map(item => {
+					const categoryName = item.category === 'All-items' ? 'Total' : item.category;
+					
+					let categoryClass = "";
+					if (categoryName === "Total") categoryClass = "highlight-bold";
 
-						return `
-							<div class="table-row ${categoryClass}">
-								<div class="table-cell table-col-2-3"><p>${categoryName}</p></div>
-								<div class="table-cell table-col-1-3"><p>${item.values[12]}</p></div>
-							</div>
-						`;
-						}).join("")}
+					return `
+						<div class="table-row ${categoryClass}">
+							<div class="table-cell table-col-2-3"><p>${categoryName}</p></div>
+							<div class="table-cell table-col-1-3"><p>${item.values[12]}</p></div>
+						</div>
+					`;
+					}).join("")}
 				`;
 
 				container.appendChild(jsonItem);
