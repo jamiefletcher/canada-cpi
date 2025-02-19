@@ -2,10 +2,9 @@
 <html>
 
 <head>
+	<title>canada-cpi</title>
 	<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-	<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
 	<!--<link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css' />-->
 	<!--<script src='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js'></script>-->
 	<style>
@@ -58,35 +57,34 @@
 	</div>
 
 	<script>
-		async function fetchJsonData(tableId) {
-			const jsonData = {};
-			const statusDiv = document.getElementById("status");
-			const provinceIndexes = [2, 3, 5, 7, 9, 11, 14, 18, 20, 23, 26, 29, 30, 31];
+		const tableId = '18100004';
 
-			for (let i of provinceIndexes) {
+		async function fetchJsonData(tableId) {
+			const statusDiv = document.getElementById("status");
+			const provinceIndex = [2, 3, 5, 7, 9, 11, 14, 18, 20, 23, 26, 29, 30, 31];
+			const jsonData = {}; // Store all fetched data
+
+			for (let i of provinceIndex) {
 				const fileUrl = `https://raw.githubusercontent.com/jamiefletcher/canada-cpi/refs/heads/main/data/${tableId}-${i}_data.json`;
 
 				try {
-					//statusDiv.innerHTML = `<div class="full-width"><p>Fetching ${fileUrl}...</p></div>`;
-					
 					const response = await fetch(fileUrl);
 					if (!response.ok) throw new Error(`Failed to fetch ${fileUrl}`);
 
-					jsonData[fileUrl] = await response.json();
-					console.log(`Fetched: ${fileUrl}`);
+					const data = await response.json();
+					jsonData[fileUrl] = data; // Store the data
+
+					// Call displayJsonData() immediately after each fetch
+					displayJsonData({ [fileUrl]: data });
 				} catch (error) {
 					console.error(error.message);
 				}
 			}
-
-			//statusDiv.innerText = "Fetching complete!";
-			console.log("All data:", jsonData);
-			return jsonData;
 		}
+		fetchJsonData(tableId);
 
 		function displayJsonData(jsonData) {
 			const container = document.getElementById('jsonContainer');
-			container.innerHTML = "";
 
 			Object.entries(jsonData).forEach(([fileUrl, data]) => {
 				const jsonItem = document.createElement('div');
@@ -119,12 +117,9 @@
 					`;
 					}).join("")}
 				`;
-
 				container.appendChild(jsonItem);
 			});
 		}
-
-		fetchJsonData('18100004').then(displayJsonData);
 
 	</script>
 </body>
