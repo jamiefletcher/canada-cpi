@@ -92,8 +92,6 @@ def main():
 
     geography = metadata["dimension"][0]["members"]
     category = metadata["dimension"][1]["members"]
-    # cat_root = min(category.keys())
-    # cat_ids = [cat_root] + category[cat_root]["children"]
 
     for geo_level, geo_id in _bfs(geography, max_depth=1):
         geo = geography[geo_id]
@@ -102,19 +100,22 @@ def main():
             "tableId": cpi_table_id,
             "geography": geo["name"],
             "geoId": geo_id,
+            "children": geo["children"],
             "level": geo_level,
             "data": [],
         }
-        for c_level, c_id in _bfs(category, max_depth=2):
-            cat = category[c_id]
-            coord = f"{geo_id}.{c_id}.0.0.0.0.0.0.0.0"
+        for cat_level, cat_id in _bfs(category, max_depth=2):
+            cat = category[cat_id]
+            coord = f"{geo_id}.{cat_id}.0.0.0.0.0.0.0.0"
             try:
                 data = statcan_get_data(pid=cpi_table_id, coordinate=coord, periods=13)
             except RuntimeError as err:
                 print(coord, err)
             else:
                 data["category"] = cat["name"]
-                data["level"] = c_level
+                data["catId"] = cat_id,
+                data["children"] = cat["children"],
+                data["level"] = cat_level
                 dataset["data"].append(data)
         with open(f"data/{cpi_table_id}-{geo_id}_data.json", "w") as f:
             json.dump(dataset, f, indent=4, ensure_ascii=False)
