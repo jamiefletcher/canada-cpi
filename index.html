@@ -61,11 +61,15 @@
 
 		async function fetchJsonData(tableId) {
 			const statusDiv = document.getElementById("status");
-			const provinceIndex = [2, 3, 5, 7, 9, 11, 14, 18, 20, 23, 26, 29, 30, 31];
+			const provinces = [
+				"canada", "british_columbia", "alberta", "saskatchewan", "manitoba", "ontario", 
+				"quebec", "nova_scotia", "new_brunswick", "prince_edward_island",
+				"newfoundland_and_labrador", "whitehorse", "yellowknife", "iqaluit"
+			];
 			const jsonData = {}; // Store all fetched data
 
-			for (let i of provinceIndex) {
-				const fileUrl = `https://raw.githubusercontent.com/jamiefletcher/canada-cpi/refs/heads/main/data/${tableId}-${i}_data.json`;
+			for (let p of provinces) {
+				const fileUrl = `./data/${tableId}/${p}.json`;
 
 				try {
 					const response = await fetch(fileUrl);

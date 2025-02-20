@@ -86,7 +86,7 @@ def main():
     cpi_table_id = 18100004
 
     metadata = statcan_get_metadata(cpi_table_id)
-    metadata_file = f"data/{cpi_table_id}_metadata.json"
+    metadata_file = f"data/{cpi_table_id}/metadata.json"
     with open(metadata_file, "w") as f:
         json.dump(metadata, f, indent=4, ensure_ascii=False)
 
@@ -95,6 +95,7 @@ def main():
 
     for geo_level, geo_id in _bfs(geography, max_depth=1):
         geo = geography[geo_id]
+        geo_short_name = geo["name"].lower().replace(" ","_").split(",")[0]
         dataset = {
             "tableName": metadata["cubeTitleEn"],
             "tableId": cpi_table_id,
@@ -117,7 +118,7 @@ def main():
                 data["children"] = cat["children"],
                 data["level"] = cat_level
                 dataset["data"].append(data)
-        with open(f"data/{cpi_table_id}-{geo_id}_data.json", "w") as f:
+        with open(f"data/{cpi_table_id}/{geo_short_name}.json", "w") as f:
             json.dump(dataset, f, indent=4, ensure_ascii=False)
 
 
