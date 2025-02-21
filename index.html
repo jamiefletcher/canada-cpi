@@ -4,48 +4,48 @@
 <head>
 	<title>canada-cpi</title>
 	<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-	<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..700;1,100..700&display=swap"
+		rel="stylesheet">
 	<!--<link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css' />-->
 	<!--<script src='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js'></script>-->
 	<style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-        body { color: hsl(0, 0%, 30%); background-color: hsl(0, 0%, 95%); height: 100vh; width: 100vw; }
-        .container { display: flex; flex-direction: column; gap: 0; margin: 0 auto; max-width: 400px; }
-        .table-container { display: flex; flex-direction: column; width: 100%; padding: 10px 20px;}
-		.table-header .table-cell { border-bottom: 2px solid hsl(0, 0%, 50%); }
+		* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+		body { color: hsl(0, 0%, 30%); background-color: hsl(0, 0%, 95%); height: 100vh; width: 100vw; }
+		.container { display: flex; flex-direction: column; gap: 0; margin: 0 auto; max-width: 400px; }
+		.table-container { display: flex; flex-direction: column; width: 100%; padding: 10px 20px; }
+		table { border-collapse: collapse; }
+		tr { }
+		td { padding: 10px 5px 0 5px; }
+		.table-header { border-bottom: 2px solid hsl(0, 0%, 80%); }
 		.table-header p { font-weight: 600; }
-		.table-row { display: flex; }
-		.table-cell { padding: 10px 0 0 0; display: flex; flex-direction: column; justify-content: flex-end; border-bottom: 1px solid hsl(0, 0%, 80%); }
-		.table-col-4-8 { flex: 1 1 50%; text-align: left; }
-		.table-col-2-8 { flex: 2; text-align: right; }
-		.table-col-1-8 { flex: 1; text-align: right; }
+		.parent { border-bottom: 1px solid hsl(0, 0%, 80%); cursor: pointer; }
+		.child { border-bottom: 1px solid hsl(0, 0%, 80%); }
+		.child-indent { padding: 10px 0 0 15px; }
 		.full-width { position: relative; justify-content: center; align-items: center; padding: 0 20px; }
-        .half-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px;}
-        .half-width .column { flex: 0 0 50%; margin: 0 auto;}
-        .quarter-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px;}
-        .quarter-width .column { flex: 0 0 25%; margin: 0 auto; }
-        .third-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px;}
-        .third-width .column { flex: 0 0 33%; margin: 0 auto; padding: 0 5px; }
-    	.profilepic{ height:75px; width:75px; background-color: hsl(0, 0%, 20%); border-radius: 50%; border: 5px solid hsl(0, 0%, 20%);}
-        .highlight-bold p { font-weight: 500; }
+		.half-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px; }
+		.half-width .column { flex: 0 0 50%; margin: 0 auto; }
+		.quarter-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px; }
+		.quarter-width .column { flex: 0 0 25%; margin: 0 auto; }
+		.third-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px; }
+		.third-width .column { flex: 0 0 33%; margin: 0 auto; padding: 0 5px; }
+		.profilepic { height: 75px; width: 75px; background-color: hsl(0, 0%, 20%); border-radius: 50%; border: 5px solid hsl(0, 0%, 20%); }
+		.highlight-bold p { font-weight: 500; }
 		#github { position: absolute; top: 10px; right: 20px; }
-        #status { margin: 0 auto; }
-        #map { background: url('img/bg1.png') no-repeat center center; background-size: contain; background-color: hsl(0, 0%, 100%); height: 190px; width: 190px; margin: 20px auto -30px auto; overflow: visible; border-radius: 50%; border: 5px solid hsl(0, 0%, 20%); pointer-events: none; }
-        .maplibregl-ctrl-bottom-right { display: none; } 
-        @media (max-width: 768px) {
-            .half-width .column { flex: 0 0 50%; }
-        }
-        .hr-medium {border:none; height:2px; background-color: hsl( 0, 0%, 30%); margin: 2px 0 5px 0; }
-        .hr-thin {border:none; height:1px; background-color: hsl( 0, 0%, 30%); margin: 2px 0 5px 0; }
-		.hr-thick {border:none; height:5px; background-color: hsl( 0, 0%, 30%); margin: 2px 0 5px 0; }
-        h1 { font-size: 69px; font-weight: 600; letter-spacing: -3px; line-height: 0.8;}
-        h2 { font-size: 26px; font-weight: 600; letter-spacing: -2px; line-height: 1; }
-        h3 { font-size: 14px; font-weight: 600; letter-spacing: 0px; line-height: 1; text-transform: uppercase; }
-        h4 { font-size: 9px; font-weight: 500; letter-spacing: 0; line-height: 1; text-transform: uppercase; }
-        p { font-size: 12px; font-weight: 500; letter-spacing: 0; }
-        a { text-decoration: none; }
-        span { font-size: 13px; font-weight: 400; letter-spacing: -1px; margin: 0 0 0 2px; }
-    </style>
+		#status { margin: 0 auto; }
+		#map { background: url('img/bg1.png') no-repeat center center; background-size: contain; background-color: hsl(0, 0%, 100%); height: 190px; width: 190px; margin: 20px auto -30px auto; overflow: visible; border-radius: 50%; border: 5px solid hsl(0, 0%, 20%); pointer-events: none; }
+		.maplibregl-ctrl-bottom-right { display: none; }
+		@media (max-width: 768px) { .half-width .column { flex: 0 0 50%; } }
+		.hr-medium { border: none; height: 2px; background-color: hsl(0, 0%, 30%); margin: 2px 0 5px 0; }
+		.hr-thin { border: none; height: 1px; background-color: hsl(0, 0%, 30%); margin: 2px 0 5px 0; }
+		.hr-thick { border: none; height: 5px; background-color: hsl(0, 0%, 30%); margin: 2px 0 5px 0; }
+		h1 { font-size: 69px; font-weight: 600; letter-spacing: -3px; line-height: 0.8; }
+		h2 { font-size: 26px; font-weight: 600; letter-spacing: -2px; line-height: 1; }
+		h3 { font-size: 14px; font-weight: 600; letter-spacing: 0px; line-height: 1; text-transform: uppercase; }
+		h4 { font-size: 9px; font-weight: 500; letter-spacing: 0; line-height: 1; text-transform: uppercase; }
+		p { font-size: 12px; font-weight: 500; letter-spacing: 0; }
+		a { text-decoration: none; }
+		span { font-size: 13px; font-weight: 400; letter-spacing: -1px; margin: 0 0 0 2px; }
+	</style>
 </head>
 
 <body>
@@ -62,13 +62,15 @@
 		async function fetchJsonData(tableId) {
 			const statusDiv = document.getElementById("status");
 			const provinces = [
-				"canada", "british_columbia", "alberta", "saskatchewan", "manitoba", "ontario", 
+				"canada", "british_columbia", "alberta", "saskatchewan", "manitoba", "ontario",
 				"quebec", "nova_scotia", "new_brunswick", "prince_edward_island",
 				"newfoundland_and_labrador", "whitehorse", "yellowknife", "iqaluit"
 			];
 			const jsonData = {}; // Store all fetched data
 
 			for (let p of provinces) {
+				// for cors
+				//const fileUrl = `https://raw.githubusercontent.com/jamiefletcher/canada-cpi/refs/heads/main/data/${tableId}/${p}.json`;
 				const fileUrl = `./data/${tableId}/${p}.json`;
 
 				try {
@@ -91,38 +93,76 @@
 			const container = document.getElementById('jsonContainer');
 
 			Object.entries(jsonData).forEach(([fileUrl, data]) => {
-				const jsonItem = document.createElement('div');
+				const jsonItem = document.createElement('table');
 				jsonItem.classList.add('table-container');
 
 				jsonItem.innerHTML = `
-					<div class="table-row table-header">
-						<div class="table-cell table-col-4-8"><p>${data.geography}</p></div>
-						<div class="table-cell table-col-1-8"><p>CPI</p></div>
-						<div class="table-cell table-col-1-8"><p>M%</p></div>
-						<div class="table-cell table-col-1-8"><p>Y%</p></div>
-					</div>	
-					${data.data.map(item => {
-					const categoryName = item.category === 'All-items' ? 'Total' : item.category;
-					const yoy = (item.values[12] - item.values[0]).toFixed(1);
-					const yoySigned = yoy > 0 ? `+${yoy}` : `${yoy}`;
-					const mom = (item.values[12] - item.values[11]).toFixed(1);
-					const momSigned = mom > 0 ? `+${mom}` : `${mom}`;
+					<tr class="table-header">
+						<td><p>${data.geography}</p></td>
+						<td><p>CPI</p></td>
+						<td><p>M%</p></td>
+						<td><p>Y%</p></td>
+					</tr>	
+				${data.data.map(item => {
+						const categoryName = item.category === 'All-items' ? 'Total' : item.category;
+						const yoy = (item.values[12] - item.values[0]).toFixed(1);
+						const yoySigned = yoy > 0 ? `+${yoy}` : `${yoy}`;
+						const mom = (item.values[12] - item.values[11]).toFixed(1);
+						const momSigned = mom > 0 ? `+${mom}` : `${mom}`;
 
-					let categoryClass = "";
-					if (categoryName === "Total") categoryClass = "highlight-bold";
+						let categoryClass = "";
+						if (categoryName === "Total") categoryClass = "highlight-bold";
 
-					return `
-						<div class="table-row ${categoryClass}">
-							<div class="table-cell table-col-4-8"><p>${categoryName}</p></div>
-							<div class="table-cell table-col-1-8"><p>${item.values[12]}</p></div>
-							<div class="table-cell table-col-1-8"><p>${momSigned}</p></div>
-							<div class="table-cell table-col-1-8"><p>${yoySigned}</p></div>
-						</div>
-					`;
-					}).join("")}
-				`;
+						// Parent row (only if item.level = 1)
+						let html = "";
+						if (item.level === 1) {
+							html = `
+							<tr class="parent ${categoryClass}" onclick="toggleChildren(this)">
+								<td><p>${categoryName}</p></td>
+								<td><p>${item.values[12]}</p></td>
+								<td><p>${momSigned}</p></td>
+								<td><p>${yoySigned}</p></td>
+							</tr>
+						`;
+
+						// Add child categories if they exist
+						if (item.children && item.children.length > 0) {
+							html += item.children.flat().map(catId => {
+								// Find the child data in the same data array
+								const childData = data.data.find(child => child.catId[0] === catId);
+								if (!childData) return ""; // Skip if child data is not found
+
+								const childYoy = (childData.values[12] - childData.values[0]).toFixed(1);
+								const childYoySigned = childYoy > 0 ? `+${childYoy}` : `${childYoy}`;
+								const childMom = (childData.values[12] - childData.values[11]).toFixed(1);
+								const childMomSigned = childMom > 0 ? `+${childMom}` : `${childMom}`;
+
+								return `
+                                <tr class="child-category child" style="display: none;">
+                                    <td class="child-indent"><p>${childData.category}</p></td>
+                                    <td><p>${childData.values[12]}</p></td>
+                                    <td><p>${childMomSigned}</p></td>
+                                    <td><p>${childYoySigned}</p></td>
+                                </tr>
+                            `;
+							}).join("");
+						}
+					}
+
+					return html;
+				}).join("")}
+        `;
 				container.appendChild(jsonItem);
 			});
+		}
+
+		// Function to toggle child rows
+		function toggleChildren(parentRow) {
+			let nextRow = parentRow.nextElementSibling;
+			while (nextRow && nextRow.classList.contains('child-category')) {
+				nextRow.style.display = nextRow.style.display === 'none' ? 'table-row' : 'none';
+				nextRow = nextRow.nextElementSibling;
+			}
 		}
 
 	</script>
