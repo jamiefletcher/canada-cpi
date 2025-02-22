@@ -10,20 +10,21 @@
 	<!--<script src='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js'></script>-->
 	<style>
 		* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-		body { color: hsl(0, 0%, 30%); background-color: hsl(0, 0%, 95%); height: 100vh; width: 100vw; }
-		.container { display: flex; flex-direction: column; gap: 0; margin: 0 auto; max-width: 400px; }
-		.table-container { display: flex; flex-direction: column; width: 100%; padding: 10px 20px; }
-		table { border-collapse: collapse; }
-		td { padding: 10px 0 0 0; }
-		.td-left { text-align: left; width:60%; vertical-align: bottom; }
-		.td-right { text-align:right; width:12%; vertical-align: bottom; }
+		body { color: hsl(0, 0%, 30%); background-color: hsl(0, 0%, 95%); height: 100%; width: 100%; }
+		.container { display: flex; flex-direction: column; gap: 0; width: 100%; }
+		.table-container { display: flex; flex-direction: column; padding: 10px 20px; margin: 0 auto;  max-width: 400px; width: 100%; }
+		table { border-collapse: collapse; table-layout: fixed; width: 100%; }
+		td { padding: 10px 0 0 0; overflow: hidden; min-width: 32px; }
+		td.td-left { text-align: left; width: 80%; vertical-align: bottom; }
+		td.td-right { text-align: right; width: 10%; vertical-align: bottom; }
 		.table-header { border-bottom: 2px solid hsl(0, 0%, 50%); }
 		.table-header p { font-weight: 600; }
 		.active-parent p { font-weight: 600; }
-		.total { border-bottom: 1px solid hsl(0, 0%, 80%); }
 		.parent { border-bottom: 1px solid hsl(0, 0%, 80%); cursor: pointer; }
-		.child { padding: 10px 0 0 10px; vertical-align: bottom; }
+		.parent .td-left { min-width: 70%; }
+		.child { padding: 10px 0 0 0; vertical-align: bottom; }
 		.child-category { border-bottom: 1px solid hsl(0, 0%, 80%); }
+		.child-category p { color: hsl(180, 50%, 30%); font-weight: 600; }
 		.full-width { position: relative; justify-content: center; align-items: center; padding: 0 20px; }
 		.half-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px; }
 		.half-width .column { flex: 0 0 50%; margin: 0 auto; }
@@ -31,8 +32,6 @@
 		.quarter-width .column { flex: 0 0 25%; margin: 0 auto; }
 		.third-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px; }
 		.third-width .column { flex: 0 0 33%; margin: 0 auto; padding: 0 5px; }
-		.profilepic { height: 75px; width: 75px; background-color: hsl(0, 0%, 20%); border-radius: 50%; border: 5px solid hsl(0, 0%, 20%); }
-		.highlight-bold p { font-weight: 500; }
 		#github { position: absolute; top: 10px; right: 20px; }
 		#status { margin: 0 auto; }
 		#map { background: url('img/bg1.png') no-repeat center center; background-size: contain; background-color: hsl(0, 0%, 100%); height: 190px; width: 190px; margin: 20px auto -30px auto; overflow: visible; border-radius: 50%; border: 5px solid hsl(0, 0%, 20%); pointer-events: none; }
@@ -89,7 +88,46 @@
 					console.error(error.message);
 				}
 			}
+			const statsCpi = calculateStats(jsonData, (provinceData) => {
+				return provinceData.data[0].values[12]; // Extract values[12]
+			});
+			console.log(statsCpi);
 		}
+
+		function calculateStats(jsonData, valueExtractor) {
+			const values = Object.values(jsonData)
+        		.filter(provinceData => provinceData.geoId !== 2) // Exclude Canada
+        		.map(provinceData => valueExtractor(provinceData)); 
+
+			values.sort((a, b) => a - b);
+
+			const calculateStatistics = (sortedArray) => {
+				const length = sortedArray.length;
+
+				const getPercentile = (p) => {
+					const index = p * (length - 1);
+					const lowerIndex = Math.floor(index);
+					const upperIndex = Math.ceil(index);
+					if (lowerIndex === upperIndex) {
+						return sortedArray[lowerIndex];
+					}
+					return sortedArray[lowerIndex] + (sortedArray[upperIndex] - sortedArray[lowerIndex]) * (index - lowerIndex);
+				};
+
+				return {
+					min: sortedArray[0],
+					q1: getPercentile(0.25),
+					median: getPercentile(0.5),
+					q3: getPercentile(0.75),
+					max: sortedArray[length - 1]
+				};
+			};
+
+			// Step 4: Get the statistics
+			const stats = calculateStatistics(values);
+			return stats; // Return the stats for further use
+		}
+
 		fetchJsonData(tableId);
 
 		function displayJsonData(jsonData) {
@@ -107,31 +145,33 @@
 						<td class="td-right"><p>Y%</p></td>
 					</tr>	
 				${data.data.map(item => {
-						const categoryName = item.category === 'All-items' ? 'Total' : item.category;
-						const yoy = (item.values[12] - item.values[0]).toFixed(1);
-						const yoySigned = yoy > 0 ? `+${yoy}` : `${yoy}`;
-						const mom = (item.values[12] - item.values[11]).toFixed(1);
-						const momSigned = mom > 0 ? `+${mom}` : `${mom}`;
+					const categoryName = item.category === 'All-items' ? 'Total' : item.category;
+					const yoy = (item.values[12] - item.values[0]).toFixed(1);
+					const yoySigned = yoy > 0 ? `+${yoy}` : `${yoy}`;
+					const mom = (item.values[12] - item.values[11]).toFixed(1);
+					const momSigned = mom > 0 ? `+${mom}` : `${mom}`;
 
-						let categoryClass = "";
-						if (categoryName === "Total") categoryClass = "highlight-bold";
+					let categoryClass = "";
+					if (categoryName === "Total") categoryClass = "highlight-bold";
 
-						// Parent row
-						let html = "";
+					// Parent row
+					let html = "";
 
-						if (item.level === 0) {
+					// Total
+					if (item.level === 0) {
 						html = `
-							<tr class="total">
+							<tr class="parent" style="cursor: auto;">
 								<td class="td-left"><p>${categoryName}</p></td>
 								<td class="td-right"><p>${item.values[12]}</p></td>
 								<td class="td-right"><p>${momSigned}</p></td>
 								<td class="td-right"><p>${yoySigned}</p></td>
 							</tr>
 						`;
-						}
+					}
 
-						if (item.level === 1) {
-							html += `
+					// Main categories
+					if (item.level === 1) {
+						html += `
 							<tr class="parent ${categoryClass}" onclick="toggleChildren(this)">
 								<td class="td-left"><p>${categoryName}</p></td>
 								<td class="td-right"><p>${item.values[12]}</p></td>
@@ -174,12 +214,49 @@
 
 		// Function to toggle child rows
 		function toggleChildren(parentRow) {
-			parentRow.classList.toggle('active-parent');
-			let nextRow = parentRow.nextElementSibling;
+		// Remove 'active-parent' class, reset border, and collapse child rows for all active rows
+		document.querySelectorAll('.active-parent').forEach((row) => {
+			if (row !== parentRow) { // Don't affect the clicked row
+			row.classList.remove('active-parent');
+			row.style.borderBottom = '';
+			let nextRow = row.nextElementSibling;
 			while (nextRow && nextRow.classList.contains('child-category')) {
-				nextRow.style.display = nextRow.style.display === 'none' ? 'table-row' : 'none';
+				nextRow.style.display = 'none';
 				nextRow = nextRow.nextElementSibling;
 			}
+			}
+		});
+
+		// Check if the clicked row is already active, and collapse/uncollapse accordingly
+		const isActive = parentRow.classList.contains('active-parent');
+		
+		if (isActive) {
+			parentRow.classList.remove('active-parent');
+			parentRow.style.borderBottom = '';
+			
+			let nextRow = parentRow.nextElementSibling;
+			while (nextRow && nextRow.classList.contains('child-category')) {
+			nextRow.style.display = 'none'; // Collapse child rows
+			nextRow = nextRow.nextElementSibling;
+			}
+		} else {
+			parentRow.classList.add('active-parent');
+			parentRow.style.borderBottom = '2px solid hsl(0, 0%, 50%)';
+			
+			let nextRow = parentRow.nextElementSibling;
+			let lastChildRow = null;
+			
+			while (nextRow && nextRow.classList.contains('child-category')) {
+			nextRow.style.display = 'table-row'; // Expand child rows
+			lastChildRow = nextRow; // Track the last child row
+			nextRow = nextRow.nextElementSibling;
+			}
+
+			// If there's a last child row, apply the border-bottom to it
+			if (lastChildRow) {
+			//lastChildRow.style.borderBottom = '1px solid hsl(0, 0%, 50%)';
+			}
+		}
 		}
 
 	</script>
