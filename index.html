@@ -14,13 +14,16 @@
 		.container { display: flex; flex-direction: column; gap: 0; margin: 0 auto; max-width: 400px; }
 		.table-container { display: flex; flex-direction: column; width: 100%; padding: 10px 20px; }
 		table { border-collapse: collapse; }
-		tr { }
-		td { padding: 10px 5px 0 5px; }
-		.table-header { border-bottom: 2px solid hsl(0, 0%, 80%); }
+		td { padding: 10px 0 0 0; }
+		.td-left { text-align: left; width:60%; vertical-align: bottom; }
+		.td-right { text-align:right; width:12%; vertical-align: bottom; }
+		.table-header { border-bottom: 2px solid hsl(0, 0%, 50%); }
 		.table-header p { font-weight: 600; }
+		.active-parent p { font-weight: 600; }
+		.total { border-bottom: 1px solid hsl(0, 0%, 80%); }
 		.parent { border-bottom: 1px solid hsl(0, 0%, 80%); cursor: pointer; }
-		.child { border-bottom: 1px solid hsl(0, 0%, 80%); }
-		.child-indent { padding: 10px 0 0 15px; }
+		.child { padding: 10px 0 0 10px; vertical-align: bottom; }
+		.child-category { border-bottom: 1px solid hsl(0, 0%, 80%); }
 		.full-width { position: relative; justify-content: center; align-items: center; padding: 0 20px; }
 		.half-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px; }
 		.half-width .column { flex: 0 0 50%; margin: 0 auto; }
@@ -98,10 +101,10 @@
 
 				jsonItem.innerHTML = `
 					<tr class="table-header">
-						<td><p>${data.geography}</p></td>
-						<td><p>CPI</p></td>
-						<td><p>M%</p></td>
-						<td><p>Y%</p></td>
+						<td class="td-left"><p>${data.geography}</p></td>
+						<td class="td-right"><p>CPI</p></td>
+						<td class="td-right"><p>M%</p></td>
+						<td class="td-right"><p>Y%</p></td>
 					</tr>	
 				${data.data.map(item => {
 						const categoryName = item.category === 'All-items' ? 'Total' : item.category;
@@ -113,15 +116,27 @@
 						let categoryClass = "";
 						if (categoryName === "Total") categoryClass = "highlight-bold";
 
-						// Parent row (only if item.level = 1)
+						// Parent row
 						let html = "";
+
+						if (item.level === 0) {
+						html = `
+							<tr class="total">
+								<td class="td-left"><p>${categoryName}</p></td>
+								<td class="td-right"><p>${item.values[12]}</p></td>
+								<td class="td-right"><p>${momSigned}</p></td>
+								<td class="td-right"><p>${yoySigned}</p></td>
+							</tr>
+						`;
+						}
+
 						if (item.level === 1) {
-							html = `
+							html += `
 							<tr class="parent ${categoryClass}" onclick="toggleChildren(this)">
-								<td><p>${categoryName}</p></td>
-								<td><p>${item.values[12]}</p></td>
-								<td><p>${momSigned}</p></td>
-								<td><p>${yoySigned}</p></td>
+								<td class="td-left"><p>${categoryName}</p></td>
+								<td class="td-right"><p>${item.values[12]}</p></td>
+								<td class="td-right"><p>${momSigned}</p></td>
+								<td class="td-right"><p>${yoySigned}</p></td>
 							</tr>
 						`;
 
@@ -136,13 +151,14 @@
 								const childYoySigned = childYoy > 0 ? `+${childYoy}` : `${childYoy}`;
 								const childMom = (childData.values[12] - childData.values[11]).toFixed(1);
 								const childMomSigned = childMom > 0 ? `+${childMom}` : `${childMom}`;
+								const childCategory = childData.category.replace(/\([^()]*\)/g, '');
 
 								return `
-                                <tr class="child-category child" style="display: none;">
-                                    <td class="child-indent"><p>${childData.category}</p></td>
-                                    <td><p>${childData.values[12]}</p></td>
-                                    <td><p>${childMomSigned}</p></td>
-                                    <td><p>${childYoySigned}</p></td>
+                                <tr class="child-category" style="display: none;">
+                                    <td class="child"><p>${childCategory}</p></td>
+                                    <td class="td-right"><p>${childData.values[12]}</p></td>
+                                    <td class="td-right"><p>${childMomSigned}</p></td>
+                                    <td class="td-right"><p>${childYoySigned}</p></td>
                                 </tr>
                             `;
 							}).join("");
@@ -158,6 +174,7 @@
 
 		// Function to toggle child rows
 		function toggleChildren(parentRow) {
+			parentRow.classList.toggle('active-parent');
 			let nextRow = parentRow.nextElementSibling;
 			while (nextRow && nextRow.classList.contains('child-category')) {
 				nextRow.style.display = nextRow.style.display === 'none' ? 'table-row' : 'none';
