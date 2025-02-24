@@ -10,7 +10,7 @@
 	<!--<script src='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js'></script>-->
 	<style>
 		* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-		body { color: hsl(0, 0%, 30%); background-color: hsl(40, 20%, 97%); height: 100%; width: 100%; }
+		body { color: hsl(0, 0%, 30%); background-color: hsl(0, 0%, 95%); height: 100%; width: 100%; }
 		.container { display: flex; flex-direction: column; gap: 0; width: 100%; }
 		.table-container { display: flex; flex-direction: column; padding: 10px 20px; margin: 0 auto;  max-width: 400px; width: 100%; }
 		table { border-collapse: collapse; table-layout: fixed; width: 100%; }
@@ -23,8 +23,7 @@
 		.parent { border-bottom: 1px solid hsl(0, 0%, 80%); cursor: pointer; }
 		.parent .td-left { min-width: 70%; }
 		.child { padding: 10px 0 0 0; vertical-align: bottom; }
-		.child-category { border-bottom: 1px solid hsl(0, 0%, 80%); }
-		.child-category p { color: hsl(180, 50%, 30%); font-weight: 600; }
+		.child-category { border-bottom: 1px solid hsl(0, 0%, 80%); background-color: hsl(0, 0%, 90%);}
 		.full-width { position: relative; justify-content: center; align-items: center; padding: 0 20px; }
 		.half-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px; }
 		.half-width .column { flex: 0 0 50%; margin: 0 auto; }
@@ -72,8 +71,8 @@
 
 			for (let p of provinces) {
 				// for cors
-				//const fileUrl = `https://raw.githubusercontent.com/jamiefletcher/canada-cpi/refs/heads/main/data/${tableId}/${p}.json`;
-				const fileUrl = `./data/${tableId}/${p}.json`;
+				const fileUrl = `https://raw.githubusercontent.com/jamiefletcher/canada-cpi/refs/heads/main/data/${tableId}/${p}.json`;
+				//const fileUrl = `./data/${tableId}/${p}.json`;
 
 				try {
 					const response = await fetch(fileUrl);
@@ -254,7 +253,7 @@
 
 			// If there's a last child row, apply the border-bottom to it
 			if (lastChildRow) {
-			//lastChildRow.style.borderBottom = '1px solid hsl(0, 0%, 50%)';
+			lastChildRow.style.borderBottom = '1px solid hsl(0, 0%, 30%)';
 			}
 		}
 		}
