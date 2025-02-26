@@ -84,6 +84,9 @@ def _bfs(tree: dict, max_depth=2):
 
 def main():
     cpi_table_id = 18100004
+    time_periods = 13
+    geo_depth = 1
+    cpi_depth = 3
 
     metadata = statcan_get_metadata(cpi_table_id)
     metadata_file = f"data/{cpi_table_id}/metadata.json"
@@ -93,7 +96,7 @@ def main():
     geography = metadata["dimension"][0]["members"]
     category = metadata["dimension"][1]["members"]
 
-    for geo_level, geo_id in _bfs(geography, max_depth=1):
+    for geo_level, geo_id in _bfs(geography, geo_depth):
         geo = geography[geo_id]
         geo_short_name = geo["name"].lower().replace(" ","_").split(",")[0]
         dataset = {
@@ -105,13 +108,13 @@ def main():
             "level": geo_level,
             "data": [],
         }
-        for cat_level, cat_id in _bfs(category, max_depth=2):
+        for cat_level, cat_id in _bfs(category, cpi_depth):
             cat = category[cat_id]
-            coord = f"{geo_id}.{cat_id}.0.0.0.0.0.0.0.0"
+            coordinate = f"{geo_id}.{cat_id}.0.0.0.0.0.0.0.0"
             try:
-                data = statcan_get_data(pid=cpi_table_id, coordinate=coord, periods=13)
+                data = statcan_get_data(cpi_table_id, coordinate, time_periods)
             except RuntimeError as err:
-                print(coord, err)
+                print(coordinate, err)
             else:
                 data["category"] = cat["name"]
                 data["catId"] = cat_id,
