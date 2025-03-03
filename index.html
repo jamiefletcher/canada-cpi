@@ -11,7 +11,7 @@
 		body { color: hsl(0, 0%, 30%); background-color: hsl(0, 0%, 95%); width: 100%; }
 		a { text-decoration: none; }
 		#jsonContainer { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 0; flex: 0 0 25%; width:100%; }
-		.jsonTable { display: flex; flex-wrap: wrap; width: 100%; max-width: 400px; padding: 10px; }
+		.jsonTable { display: flex; flex-wrap: wrap; width: 100%; max-width: 400px; padding: 10px 20px; }
 		@media (max-width: 1600px) { .table-container { flex: 0 0 33.33%; max-width: 33.33%; } }
 		@media (max-width: 1200px) { .table-container { flex: 0 0 50%; max-width: 50%; } }
 		@media (max-width: 800px) { .table-container { flex: 0 0 100%; max-width: 100%; } }
@@ -22,8 +22,8 @@
     .table-row-group { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 1px solid hsl(0, 0%, 80%); width: 100%; padding: 10px 0 0 0; }
 		.hidden { display: none; }
     [data-level="0"] { background-color: hsl(0, 0%, 95%); }
-    [data-level="1"] { background-color: hsl(0, 0%, 95%); }
-    [data-level="2"] { background-color: hsl(0, 0%, 90%); }
+    [data-level="1"] { background-color: hsl(0, 0%, 95%); cursor: pointer; }
+    [data-level="2"] { background-color: hsl(0, 0%, 90%); cursor: pointer; }
     [data-level="3"] { background-color: hsl(0, 0%, 85%); }
 	</style>
 </head>
