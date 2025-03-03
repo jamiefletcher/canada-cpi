@@ -4,263 +4,128 @@
 <head>
 	<title>canada-cpi</title>
 	<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-	<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..700;1,100..700&display=swap"
-		rel="stylesheet">
-	<!--<link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css' />-->
-	<!--<script src='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js'></script>-->
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
 	<style>
-		* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		html { font-family: 'Montserrat',sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0; }
 		body { color: hsl(0, 0%, 30%); background-color: hsl(0, 0%, 95%); width: 100%; }
-		.table-container { flex: 0 0 25%; padding: 10px; }
+		a { text-decoration: none; }
+		#jsonContainer { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 0; flex: 0 0 25%; width:100%; }
+		.jsonTable { display: flex; flex-wrap: wrap; width: 100%; max-width: 400px; padding: 10px; }
 		@media (max-width: 1600px) { .table-container { flex: 0 0 33.33%; max-width: 33.33%; } }
 		@media (max-width: 1200px) { .table-container { flex: 0 0 50%; max-width: 50%; } }
 		@media (max-width: 800px) { .table-container { flex: 0 0 100%; max-width: 100%; } }
-		table { border-collapse: collapse; table-layout: fixed; width: 100%; max-width: 400px; margin: 0 auto; }
-		td { padding: 10px 0 0 0; overflow: hidden; min-width: 32px; }
-		td.td-left { text-align: left; width: 80%; vertical-align: bottom; }
-		td.td-right { text-align: right; width: 10%; vertical-align: bottom; }
-		.table-header { border-bottom: 2px solid hsl(0, 0%, 50%); }
-		.table-header p { font-weight: 600; }
-		.active-parent p { font-weight: 600; }
-		.parent { border-bottom: 1px solid hsl(0, 0%, 80%); cursor: pointer; }
-		.parent .td-left { min-width: 70%; }
-		.child { padding: 10px 0 0 0; vertical-align: bottom; }
-		.child-category { border-bottom: 1px solid hsl(0, 0%, 80%); background-color: hsl(0, 0%, 90%);}
-		.full-width { position: relative; justify-content: center; align-items: center; padding: 0 20px; }
-		.half-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px; }
-		.half-width .column { flex: 0 0 50%; margin: 0 auto; }
-		.quarter-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px; }
-		.quarter-width .column { flex: 0 0 25%; margin: 0 auto; }
-		.third-width { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px; }
-		.third-width .column { flex: 0 0 33%; margin: 0 auto; padding: 0 5px; }
-		#jsonContainer { display:flex; flex-wrap: wrap; }
-		#github { position: absolute; top: 10px; right: 20px; }
-		#status { margin: 0 auto; }
-		#map { background: url('img/bg1.png') no-repeat center center; background-size: contain; background-color: hsl(0, 0%, 100%); height: 190px; width: 190px; margin: 20px auto -30px auto; overflow: visible; border-radius: 50%; border: 5px solid hsl(0, 0%, 20%); pointer-events: none; }
-		.maplibregl-ctrl-bottom-right { display: none; }
-		.hr-medium { border: none; height: 2px; background-color: hsl(0, 0%, 30%); margin: 2px 0 5px 0; }
-		.hr-thin { border: none; height: 1px; background-color: hsl(0, 0%, 30%); margin: 2px 0 5px 0; }
-		.hr-thick { border: none; height: 5px; background-color: hsl(0, 0%, 30%); margin: 2px 0 5px 0; }
-		h1 { font-size: 69px; font-weight: 600; letter-spacing: -3px; line-height: 0.8; }
-		h2 { font-size: 26px; font-weight: 600; letter-spacing: -2px; line-height: 1; }
-		h3 { font-size: 14px; font-weight: 600; letter-spacing: 0px; line-height: 1; text-transform: uppercase; }
-		h4 { font-size: 9px; font-weight: 500; letter-spacing: 0; line-height: 1; text-transform: uppercase; }
-		p { font-size: 12px; font-weight: 500; letter-spacing: 0; }
-		a { text-decoration: none; }
-		span { font-size: 13px; font-weight: 400; letter-spacing: -1px; margin: 0 0 0 2px; }
+		.column-left { text-align: left; width: 70%; align-self: flex-end; }
+		.column-right { text-align: right; width: 10%; align-self: flex-end; }
+		.table-header { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 2px solid hsl(0, 0%, 50%); width: 100%; }
+		.table-row { display: flex; flex-wrap: wrap; gap: 0; width: 100%; }
+    .table-row-group { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 1px solid hsl(0, 0%, 80%); width: 100%; padding: 10px 0 0 0; }
+		.hidden { display: none; }
+    [data-level="0"] { background-color: hsl(0, 0%, 95%); }
+    [data-level="1"] { background-color: hsl(0, 0%, 95%); }
+    [data-level="2"] { background-color: hsl(0, 0%, 90%); }
+    [data-level="3"] { background-color: hsl(0, 0%, 85%); }
 	</style>
 </head>
 
 <body>
 
 	<div class="container">
-		<!--<div id="map"></div>-->
 		<div id="status"></div>
 		<div id="jsonContainer"></div>
 	</div>
 
 	<script>
-		const tableId = '18100004';
+const tableId = '18100004';
+const provinces = [
+    "canada", "british_columbia", "alberta", "saskatchewan", "manitoba", "ontario",
+    "quebec", "nova_scotia", "new_brunswick", "prince_edward_island",
+    "newfoundland_and_labrador", "whitehorse", "yellowknife", "iqaluit"
+];
+const levels = [0,1,2,3];
+const jsonData = {};
 
-		async function fetchJsonData(tableId) {
-			const statusDiv = document.getElementById("status");
-			const provinces = [
-				"canada", "british_columbia", "alberta", "saskatchewan", "manitoba", "ontario",
-				"quebec", "nova_scotia", "new_brunswick", "prince_edward_island",
-				"newfoundland_and_labrador", "whitehorse", "yellowknife", "iqaluit"
-			];
-			const jsonData = {}; // Store all fetched data
+async function fetchCPI() {
+    const jsonContainer = document.getElementById('jsonContainer');
 
-			for (let p of provinces) {
-				// for cors
-				const fileUrl = `https://raw.githubusercontent.com/jamiefletcher/canada-cpi/refs/heads/main/data/${tableId}/${p}.json`;
-				//const fileUrl = `./data/${tableId}/${p}.json`;
-
-				try {
-					const response = await fetch(fileUrl);
-					if (!response.ok) throw new Error(`Failed to fetch ${fileUrl}`);
-
-					const data = await response.json();
-					jsonData[fileUrl] = data; // Store the data
-
-					// Call displayJsonData() immediately after each fetch
-					displayJsonData({ [fileUrl]: data });
-				} catch (error) {
-					console.error(error.message);
-				}
-			}
-			const statsCpi = calculateStats(jsonData, (provinceData) => {
-				return provinceData.data[0].values[12]; // Extract values[12]
-			});
-			console.log(statsCpi);
-		}
-
-		function calculateStats(jsonData, valueExtractor) {
-			const values = Object.values(jsonData)
-        		.filter(provinceData => provinceData.geoId !== 2) // Exclude Canada
-        		.map(provinceData => valueExtractor(provinceData)); 
-
-			values.sort((a, b) => a - b);
-
-			const calculateStatistics = (sortedArray) => {
-				const length = sortedArray.length;
-
-				const getPercentile = (p) => {
-					const index = p * (length - 1);
-					const lowerIndex = Math.floor(index);
-					const upperIndex = Math.ceil(index);
-					if (lowerIndex === upperIndex) {
-						return sortedArray[lowerIndex];
-					}
-					return sortedArray[lowerIndex] + (sortedArray[upperIndex] - sortedArray[lowerIndex]) * (index - lowerIndex);
-				};
-
-				return {
-					min: sortedArray[0],
-					q1: getPercentile(0.25),
-					median: getPercentile(0.5),
-					q3: getPercentile(0.75),
-					max: sortedArray[length - 1]
-				};
-			};
-
-			// Step 4: Get the statistics
-			const stats = calculateStatistics(values);
-			return stats; // Return the stats for further use
-		}
-
-		fetchJsonData(tableId);
-
-		function displayJsonData(jsonData) {
-	const container = document.getElementById('jsonContainer');
-
-	Object.entries(jsonData).forEach(([fileUrl, data]) => {
-		const tableWrapper = document.createElement('div');
-		tableWrapper.classList.add('table-container');
-
-		const jsonTable = document.createElement('table');
+    for (let p of provinces) {
+        const fileUrl = `https://raw.githubusercontent.com/jamiefletcher/canada-cpi/refs/heads/main/data/${tableId}/${p}.json`;
+        const response = await fetch(fileUrl);
+        const data = await response.json();
+        const jsonTable = document.createElement('div');
+		jsonTable.classList.add('jsonTable');
+		let html = '';
 
 		jsonTable.innerHTML = `
-			<tr class="table-header">
-				<td class="td-left"><p>${data.geography}</p></td>
-				<td class="td-right"><p>CPI</p></td>
-				<td class="td-right"><p>M%</p></td>
-				<td class="td-right"><p>Y%</p></td>
-			</tr>	
-			${data.data.map(item => {
-				const categoryName = item.category === 'All-items' ? 'Total' : item.category;
-				const yoy = (item.values[12] - item.values[0]).toFixed(1);
-				const yoySigned = yoy > 0 ? `+${yoy}` : `${yoy}`;
-				const mom = (item.values[12] - item.values[11]).toFixed(1);
-				const momSigned = mom > 0 ? `+${mom}` : `${mom}`;
+            <div class="table-header">
+                <div class="column-left">${data.geography}</div>
+                <div class="column-right">CPI</div>
+                <div class="column-right">M%</div>
+                <div class="column-right">Y%</div>
+			</div>
+				`;
 
-				let categoryClass = "";
-				if (categoryName === "Total") categoryClass = "highlight-bold";
+levels.forEach(level => {
+  data.data
+    .filter(item => item.level === level)  // Filter by current level
+	.forEach(item => {
+      const categoryName = item.category === 'All-items' ? 'Total' : item.category;
+      const cpi = item.values[12];
+      const yoy = (item.values[12] - item.values[0]).toFixed(1);
+      const yoySigned = yoy > 0 ? `+${yoy}` : `${yoy}`;
+      const mom = (item.values[12] - item.values[11]).toFixed(1);
+      const momSigned = mom > 0 ? `+${mom}` : `${mom}`;
+      const id = `${p}-${item.catId[0]}`;
 
-				let html = "";
-
-				// Total
-				if (item.level === 0) {
-					html = `
-						<tr class="parent" style="cursor: auto;">
-							<td class="td-left"><p>${categoryName}</p></td>
-							<td class="td-right"><p>${item.values[12]}</p></td>
-							<td class="td-right"><p>${momSigned}</p></td>
-							<td class="td-right"><p>${yoySigned}</p></td>
-						</tr>
-					`;
-				}
-
-				// Main categories
-				if (item.level === 1) {
-					html += `
-						<tr class="parent ${categoryClass}" onclick="toggleChildren(this)">
-							<td class="td-left"><p>${categoryName}</p></td>
-							<td class="td-right"><p>${item.values[12]}</p></td>
-							<td class="td-right"><p>${momSigned}</p></td>
-							<td class="td-right"><p>${yoySigned}</p></td>
-						</tr>
-					`;
-
-					// Add child categories
-					if (item.children && item.children.length > 0) {
-						html += item.children.flat().map(catId => {
-							const childData = data.data.find(child => child.catId[0] === catId);
-							if (!childData) return "";
-
-							const childYoy = (childData.values[12] - childData.values[0]).toFixed(1);
-							const childYoySigned = childYoy > 0 ? `+${childYoy}` : `${childYoy}`;
-							const childMom = (childData.values[12] - childData.values[11]).toFixed(1);
-							const childMomSigned = childMom > 0 ? `+${childMom}` : `${childMom}`;
-							const childCategory = childData.category.replace(/\([^()]*\)/g, '');
-
-							return `
-								<tr class="child-category" style="display: none;">
-									<td class="child"><p>${childCategory}</p></td>
-									<td class="td-right"><p>${childData.values[12]}</p></td>
-									<td class="td-right"><p>${childMomSigned}</p></td>
-									<td class="td-right"><p>${childYoySigned}</p></td>
-								</tr>
-							`;
-						}).join("");
-					}
-				}
-
-				return html;
-			}).join("")}
+      // Generate HTML for the table row for the current level
+      let html = `
+        <div class="table-row-group" id="${id}" data-level="${level}" onclick="toggleChildren('${id}')">
+          <div class="column-left">${categoryName}</div>
+          <div class="column-right">${cpi}</div>
+          <div class="column-right">${momSigned}</div>
+          <div class="column-right">${yoySigned}</div>
+        </div>
 		`;
 
-		tableWrapper.appendChild(jsonTable);
-		container.appendChild(tableWrapper);
+		item.children.flat().forEach(child => {
+            html += `<div class="hidden table-row" id="${p}-${child}" data-parentid="${id}"></div>`;
+        });
+
+		if (item.level <= 1) {
+			jsonTable.innerHTML += html;
+			jsonContainer.appendChild(jsonTable);
+		} else {
+			// Find the div with id = catId for the current level
+			const parentDiv = document.getElementById(id);
+			if (parentDiv) {
+                parentDiv.innerHTML += html;
+            }
+		}
 	});
+});
+
+
+
+	};
+};
+
+function toggleChildren(catId) {
+  const children = document.querySelectorAll(`[data-parentid='${catId}']`);
+
+  children.forEach(child => {
+    const isHidden = child.classList.contains('hidden');
+
+    if (isHidden) {
+      child.classList.remove('hidden');
+      child.classList.add('active');
+    } else {
+      child.classList.add('hidden');
+    }
+  });
 }
 
-		// Function to toggle child rows
-		function toggleChildren(parentRow) {
-		// Remove 'active-parent' class, reset border, and collapse child rows for all active rows
-		document.querySelectorAll('.active-parent').forEach((row) => {
-			if (row !== parentRow) { // Don't affect the clicked row
-			row.classList.remove('active-parent');
-			row.style.borderBottom = '';
-			let nextRow = row.nextElementSibling;
-			while (nextRow && nextRow.classList.contains('child-category')) {
-				nextRow.style.display = 'none';
-				nextRow = nextRow.nextElementSibling;
-			}
-			}
-		});
 
-		// Check if the clicked row is already active, and collapse/uncollapse accordingly
-		const isActive = parentRow.classList.contains('active-parent');
-		
-		if (isActive) {
-			parentRow.classList.remove('active-parent');
-			parentRow.style.borderBottom = '';
-			
-			let nextRow = parentRow.nextElementSibling;
-			while (nextRow && nextRow.classList.contains('child-category')) {
-			nextRow.style.display = 'none'; // Collapse child rows
-			nextRow = nextRow.nextElementSibling;
-			}
-		} else {
-			parentRow.classList.add('active-parent');
-			parentRow.style.borderBottom = '2px solid hsl(0, 0%, 50%)';
-			
-			let nextRow = parentRow.nextElementSibling;
-			let lastChildRow = null;
-			
-			while (nextRow && nextRow.classList.contains('child-category')) {
-			nextRow.style.display = 'table-row'; // Expand child rows
-			lastChildRow = nextRow; // Track the last child row
-			nextRow = nextRow.nextElementSibling;
-			}
-
-			// If there's a last child row, apply the border-bottom to it
-			if (lastChildRow) {
-			lastChildRow.style.borderBottom = '1px solid hsl(0, 0%, 30%)';
-			}
-		}
-		}
+fetchCPI();
 
 	</script>
 </body>
