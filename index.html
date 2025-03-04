@@ -21,6 +21,8 @@
 		.table-row { display: flex; flex-wrap: wrap; gap: 0; width: 100%; }
     .table-row-group { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 1px solid hsl(0, 0%, 80%); width: 100%; padding: 10px 0 0 0; }
 		.hidden { display: none; }
+    .first-child { border-top: 1px solid hsl(0, 0%, 50%); }
+    .last-child { border-bottom: 1px solid hsl(0, 0%, 50%); }
     [data-level="0"] { background-color: hsl(0, 0%, 95%); }
     [data-level="1"] { background-color: hsl(0, 0%, 95%); cursor: pointer; }
     [data-level="2"] { background-color: hsl(0, 0%, 90%); cursor: pointer; }
@@ -109,21 +111,26 @@ levels.forEach(level => {
 	};
 };
 
-function toggleChildren(catId) {
-  const children = document.querySelectorAll(`[data-parentid='${catId}']`);
+function toggleChildren(id) {
+  const children = document.querySelectorAll(`[data-parentid='${id}']`);
 
-  children.forEach(child => {
+  children.forEach((child, index) => {
     const isHidden = child.classList.contains('hidden');
 
     if (isHidden) {
       child.classList.remove('hidden');
-      child.classList.add('active');
+      if (index === 0) {
+        child.classList.add('first-child');
+      }
+      if (index === children.length - 1) {
+        child.classList.add('last-child');
+      }
     } else {
       child.classList.add('hidden');
+      child.classList.remove('first-child', 'last-child'); // Remove styles when hidden
     }
   });
 }
-
 
 fetchCPI();
 
