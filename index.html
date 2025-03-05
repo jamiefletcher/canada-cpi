@@ -17,14 +17,17 @@
 		@media (max-width: 800px) { .table-container { flex: 0 0 100%; max-width: 100%; } }
 		.column-left { text-align: left; width: 70%; align-self: flex-end; }
 		.column-right { text-align: right; width: 10%; align-self: flex-end; }
-		.table-header { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 2px solid hsl(0, 0%, 50%); width: 100%; }
+		.table-header { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 2px solid hsl(0, 0%, 50%); width: 100%; font-weight: 600; }
 		.table-row { display: flex; flex-wrap: wrap; gap: 0; width: 100%; }
     .table-row-group { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 1px solid hsl(0, 0%, 80%); width: 100%; padding: 10px 0 0 0; }
-		.hidden { display: none; }
-    [data-level="0"] { background-color: hsl(0, 0%, 100%); }
-    [data-level="1"] { background-color: hsl(0, 0%, 100%); cursor: pointer; }
-    [data-level="2"] { background-color: hsl(0, 0%, 95%); cursor: pointer; }
-    [data-level="3"] { background-color: hsl(0, 0%, 90%); }
+    .table-row-group.active { font-weight: 600; }
+    .hidden { display: none; }
+    [data-level="0"] { background-color: hsl(0, 0%, 100%); z-index: 10; }
+    [data-level="1"] { background-color: hsl(0, 0%, 100%); z-index: 9; cursor: pointer; }
+    [data-level="2"] { background-color: hsl(0, 0%, 100%); z-index: 8; cursor: pointer; }
+    [data-level="2"] .column-left { padding-left: 10px;}
+    [data-level="3"] { background-color: hsl(0, 0%, 100%); z-index: 7; }
+    [data-level="3"] .column-left { padding-left: 20px;}
 	</style>
 </head>
 
@@ -110,25 +113,23 @@ levels.forEach(level => {
 };
 
 function toggleChildren(id) {
+  const parent = document.querySelector(`#${id}.table-row-group`);
+  console.log(parent)
   const children = document.querySelectorAll(`[data-parentid='${id}']`);
+
+  parent.classList.toggle('active'); // Toggle active class on parent
 
   children.forEach((child, index) => {
     const isHidden = child.classList.contains('hidden');
 
     if (isHidden) {
       child.classList.remove('hidden');
-      if (index === 0) {
-        child.classList.add('first-child');
-      }
-      if (index === children.length - 1) {
-        child.classList.add('last-child');
-      }
     } else {
       child.classList.add('hidden');
-      child.classList.remove('first-child', 'last-child'); // Remove styles when hidden
     }
   });
 }
+
 
 fetchCPI();
 
