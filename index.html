@@ -81,8 +81,20 @@ levels.forEach(level => {
       const id = `${p}-${item.catId[0]}`;
 
       // Generate HTML for the table row for the current level
-      let html = `
-        <div class="table-row-group" id="${id}" data-level="${level}" onclick="toggleChildren('${id}')">
+      let html = '';
+
+      const allChildren = item.children.flat();
+
+      if (allChildren && allChildren.length > 0) {
+  html = `
+    <div class="table-row-group" id="${id}" data-level="${level}" onclick="toggleChildren('${id}')">
+  `;
+} else {
+  html = `
+    <div class="table-row-group" id="${id}" data-level="${level}">
+  `;
+}
+      html += `
           <div class="column-left">${categoryName}</div>
           <div class="column-right">${cpi}</div>
           <div class="column-right">${momSigned}</div>
