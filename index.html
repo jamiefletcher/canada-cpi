@@ -7,26 +7,31 @@
 	<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
 	<style>
 		* { margin: 0; padding: 0; box-sizing: border-box; }
-		html { font-family: 'Montserrat',sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0; }
-		body { color: hsl(0, 0%, 30%); background-color: hsl(0, 0%, 100%); width: 100%; }
+		html { font-family: 'Montserrat',sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0; height: 100%; width: 100%; }
+		body { color: hsl(0, 0%, 30%); background-color: hsl(0, 0%, 100%); height: 100%; width: 100%; }
 		a { text-decoration: none; }
-		#jsonContainer { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 0; flex: 0 0 25%; width:100%; }
-		.jsonTable { display: flex; flex-wrap: wrap; width: 100%; max-width: 400px; padding: 10px 20px; }
+    .container {height: 100%; width: 100%; }
+    #bottomContainer { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 0; flex: 0 0 25%; border-top: 1px solid hsl(0, 0%, 80%); width:100%; height: 20%; overflow-y: scroll; font-size: 9px; }
+    #jsonContainer { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 0; flex: 0 0 25%; width:100%; height:80%; overflow-y: scroll; }
+		.jsonTable { display: flex; flex-wrap: wrap; width: 100%; max-width: 400px; padding: 10px 20px;  }
 		@media (max-width: 1600px) { .table-container { flex: 0 0 33.33%; max-width: 33.33%; } }
 		@media (max-width: 1200px) { .table-container { flex: 0 0 50%; max-width: 50%; } }
 		@media (max-width: 800px) { .table-container { flex: 0 0 100%; max-width: 100%; } }
 		.column-left { text-align: left; width: 70%; align-self: flex-end; }
 		.column-right { text-align: right; width: 10%; align-self: flex-end; }
 		.table-header { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 2px solid hsl(0, 0%, 50%); width: 100%; font-weight: 600; }
+    .table-header-stats { display: flex; flex-wrap: wrap; gap: 0; width: 100%; font-weight: 600; }
 		.table-row { display: flex; flex-wrap: wrap; gap: 0; width: 100%; }
     .table-row-group { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 1px solid hsl(0, 0%, 80%); width: 100%; padding: 10px 0 0 0; }
-    .table-row-group.active { font-weight: 600; }
+    .table-row-group.active { background-color: hsl(213, 75%, 96%); }
+    .table-row-group.active-bold { font-weight: 600; }
+    .table-row-stats {  display: flex; flex-wrap: wrap; gap: 0; width: 100%; padding: 5px 0 0 0; }
     .hidden { display: none; }
-    [data-level="0"] { background-color: hsl(0, 0%, 100%); z-index: 10; }
+    [data-level="0"] { background-color: hsl(0, 0%, 100%); z-index: 10; cursor: pointer; }
     [data-level="1"] { background-color: hsl(0, 0%, 100%); z-index: 9; cursor: pointer; }
     [data-level="2"] { background-color: hsl(0, 0%, 100%); z-index: 8; cursor: pointer; }
     [data-level="2"] .column-left { padding-left: 10px;}
-    [data-level="3"] { background-color: hsl(0, 0%, 100%); z-index: 7; }
+    [data-level="3"] { background-color: hsl(0, 0%, 100%); z-index: 7; cursor: pointer; }
     [data-level="3"] .column-left { padding-left: 20px;}
 	</style>
 </head>
@@ -36,6 +41,7 @@
 	<div class="container">
 		<div id="status"></div>
 		<div id="jsonContainer"></div>
+    <div id="bottomContainer"></div>
 	</div>
 
 	<script>
@@ -46,7 +52,7 @@ const provinces = [
     "newfoundland_and_labrador", "whitehorse", "yellowknife", "iqaluit"
 ];
 const levels = [0,1,2,3];
-const jsonData = {};
+let stats = [];
 
 async function fetchCPI() {
     const jsonContainer = document.getElementById('jsonContainer');
@@ -74,24 +80,35 @@ levels.forEach(level => {
 	.forEach(item => {
       const categoryName = item.category === 'All-items' ? 'Total' : item.category;
       const cpi = item.values[12];
-      const yoy = (item.values[12] - item.values[0]).toFixed(1);
-      const yoySigned = yoy > 0 ? `+${yoy}` : `${yoy}`;
-      const mom = (item.values[12] - item.values[11]).toFixed(1);
-      const momSigned = mom > 0 ? `+${mom}` : `${mom}`;
+      const yoy = (item.values[12] - item.values[0]);
+      const yoySigned = yoy > 0 ? `+${yoy.toFixed(1)}` : `${yoy.toFixed(1)}`;
+      const mom = (item.values[12] - item.values[11]);
+      const momSigned = mom > 0 ? `+${mom.toFixed(1)}` : `${mom.toFixed(1)}`;
       const id = `${p}-${item.catId[0]}`;
+
+      if (p !== 'canada') { // exclude canada from stats
+        stats.push({
+          catid: item.catId[0], 
+          category: categoryName,
+          cpi: cpi,
+          yoy: yoy,
+          yoySigned: yoySigned,
+          mom: mom,
+          momSigned: momSigned,
+          province: p,
+          values: item.values
+        });
+      }
 
       // Generate HTML for the table row for the current level
       let html = '';
-
-      const allChildren = item.children.flat();
-
-      if (allChildren && allChildren.length > 0) {
+      if (item.children && item.children.length > 0 && level < levels[levels.length - 1]) {
   html = `
-    <div class="table-row-group" id="${id}" data-level="${level}" onclick="toggleChildren('${id}')">
+    <div class="table-row-group" id="${id}" data-level="${level}" onclick="toggleActiveBold('${id}')">
   `;
 } else {
   html = `
-    <div class="table-row-group" id="${id}" data-level="${level}">
+    <div class="table-row-group" id="${id}" data-level="${level}" onclick="toggleActive('${id}')">
   `;
 }
       html += `
@@ -115,21 +132,132 @@ levels.forEach(level => {
 			if (parentDiv) {
                 parentDiv.innerHTML += html;
             }
-		}
-	});
+
+          }
+
+
+  });
+
+
 });
 
 
-
 	};
+
 };
 
-function toggleChildren(id) {
+function calculateStatistics(id) {
+  const [province, catid] = id.split('-');
+  // Filter the stats based on the ID
+  const clickedCategoryStats = stats.filter(stat => stat.catid === Number(catid));
+  //console.log(clickedCategoryStats[0].category)
+
+  // Extract values (e.g., cpi, yoy, or any other value you want to calculate statistics on)
+  const values = clickedCategoryStats.map(stat => stat.cpi); // You can change `cpi` to `yoy` or `mom` based on your needs
+  // Sort the values
+  values.sort((a, b) => a - b);
+  const length = values.length;
+  // Calculate percentiles
+  const getPercentile = (p) => {
+    const index = p * (length - 1);
+    const lowerIndex = Math.floor(index);
+    const upperIndex = Math.ceil(index);
+    if (lowerIndex === upperIndex) {
+      return values[lowerIndex];
+    }
+    return values[lowerIndex] + (values[upperIndex] - values[lowerIndex]) * (index - lowerIndex);
+  };
+
+  const jsonTable = document.createElement('div');
+		jsonTable.classList.add('jsonTable');
+		let html = '';
+
+		jsonTable.innerHTML = `
+            <div class="table-header-stats">
+                <div class="column-left">*${clickedCategoryStats[0].category}</div>
+                                <div class="column-right">CPI</div>
+                <div class="column-right">M%</div>
+                <div class="column-right">Y%</div>
+			</div>
+				`;
+        bottomContainer.innerHTML = '';  // Clear previous content in the container
+// Create an array to store province and cpi values
+const provinceValues = clickedCategoryStats.map(stat => ({
+  province: stat.province,
+  cpi: stat.cpi,  // Use 'cpi' here, or you can change to 'yoy' or 'mom' as needed
+  yoySigned: stat.yoySigned,
+  momSigned: stat.momSigned
+}));
+
+// Sort province values in descending order based on the cpi
+provinceValues.sort((a, b) => b.cpi - a.cpi); // Sort by cpi in descending order
+
+// Loop through the sorted province values and create HTML
+provinceValues.forEach((item, index) => {
+  provinceName = item.province.replace(/_/g, ' ').replace(' and ', ' & ').replace(/\b\w/g, char => char.toUpperCase())
+  html += `
+   <div class="table-row-stats">
+          <div class="column-left">${index + 1}. ${provinceName}</div>
+          <div class="column-right">${item.cpi}</div>
+          <div class="column-right">${item.momSigned}</div>
+          <div class="column-right">${item.yoySigned}</div>
+        </div>
+  `;
+});
+
+// Add the HTML to the table
+jsonTable.innerHTML += html;
+
+// Append the updated table to the container
+bottomContainer.appendChild(jsonTable);
+
+  // Return the statistics
+  return {
+    min: values[0],
+    q1: getPercentile(0.25),
+    median: getPercentile(0.5),
+    q3: getPercentile(0.75),
+    max: values[length - 1]
+  };
+
+}
+
+function toggleActive(id) {
+  document.querySelectorAll('.table-row-group.active').forEach(el => {
+    el.classList.remove('active');
+  });
+
   const parent = document.querySelector(`#${id}.table-row-group`);
-  console.log(parent)
   const children = document.querySelectorAll(`[data-parentid='${id}']`);
 
   parent.classList.toggle('active'); // Toggle active class on parent
+  
+  const calculatedStats = calculateStatistics(id);
+
+  children.forEach((child, index) => {
+    const isHidden = child.classList.contains('hidden');
+
+    if (isHidden) {
+      child.classList.remove('hidden');
+    } else {
+      child.classList.add('hidden');
+    }
+  });
+  
+}
+
+function toggleActiveBold(id) {
+  document.querySelectorAll('.table-row-group.active').forEach(el => {
+    el.classList.remove('active');
+  });
+
+  const parent = document.querySelector(`#${id}.table-row-group`);
+  const children = document.querySelectorAll(`[data-parentid='${id}']`);
+
+  parent.classList.toggle('active'); 
+  parent.classList.toggle('active-bold'); // Toggle active class on parent
+
+  const calculatedStats = calculateStatistics(id);
 
   children.forEach((child, index) => {
     const isHidden = child.classList.contains('hidden');
@@ -141,6 +269,7 @@ function toggleChildren(id) {
     }
   });
 }
+
 
 
 fetchCPI();
